@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="one">uma</string>
+    <string name="two">duas</string>
+    <string name="three">três</string>
+    <string name="four">quatro</string>
+    <string name="five">cinco</string>
+    <string name="six">seis</string>
+    <string name="seven">sete</string>
+    <string name="eight">oito</string>
+    <string name="nine">nove</string>
+    <string name="ten">dez</string>
+    <string name="eleven">onze</string>
+    <string name="twelve">doze</string>
+    <string name="twenty">vinte</string>
+    <string name="twenty_five">vinte\u00A0e\u00A0cinco</string>
+
+    <string name="o_clock">{hours} hora(s)</string>
+    <string name="quarter_past">{hours} e quinze</string>
+    <string name="half_past">{hours} e meia</string>
+    <string name="quarter_to">quinze para\u00A0as {hours}</string>
+    <string name="any_past">{hours} e {minutes}</string>
+    <string name="any_to">{minutes} para\u00A0as {hours}</string>
+
+    <string name="sample_time">vinte\u00A0e\u00A0cinco\npara\u00A0as\nonze</string>
+
+</resources>

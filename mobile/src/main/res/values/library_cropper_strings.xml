@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="define_cropper"></string>
+    <!-- Author section -->
+    <string name="library_cropper_author">Edmodo, Inc.</string>
+    <string name="library_cropper_authorWebsite">https://www.edmodo.com</string>
+    <!-- Library section -->
+    <string name="library_cropper_libraryName">Cropper</string>
+    <string name="library_cropper_libraryDescription">Cropper is an image cropping tool. It provides a way to set an image in XML or programmatically, and displays a resizable crop window on top of the image.</string>
+    <string name="library_cropper_libraryWebsite">https://github.com/edmodo/cropper/wiki</string>
+    <string name="library_cropper_libraryVersion">1.0.1</string>
+    <!-- OpenSource section -->
+    <string name="library_cropper_isOpenSource">true</string>
+    <string name="library_cropper_repositoryLink">https://github.com/edmodo/cropper</string>
+    <!-- License section -->
+    <string name="library_cropper_licenseId">apache_2_0</string>
+    <!-- Custom variables section -->
+</resources>

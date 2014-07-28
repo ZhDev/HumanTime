@@ -1,0 +1,4 @@
+keyStore=/pat/to/the/release.keystore
+keyStorePassword=mysecretpassword
+keyAlias=myapp
+keyAliasPassword=mysecretpassword

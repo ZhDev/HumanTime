@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="define_holocolorpicker"></string>
+    <!-- Author section -->
+    <string name="library_holocolorpicker_author">Lars Werkman</string>
+    <string name="library_holocolorpicker_authorWebsite">http://larswerkman.com</string>
+    <!-- Library section -->
+    <string name="library_holocolorpicker_libraryName">Holo ColorPicker</string>
+    <string name="library_holocolorpicker_libraryDescription">Holo ColorPicker widget.</string>
+    <string name="library_holocolorpicker_libraryWebsite"></string>
+    <string name="library_holocolorpicker_libraryVersion">1.4</string>
+    <!-- OpenSource section -->
+    <string name="library_holocolorpicker_isOpenSource">true</string>
+    <string name="library_holocolorpicker_repositoryLink">https://github.com/LarsWerkman/HoloColorPicker</string>
+    <!-- License section -->
+    <string name="library_holocolorpicker_licenseId">apache_2_0</string>
+    <!-- Custom variables section -->
+</resources>

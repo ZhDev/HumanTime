@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="one">ein</string>
+    <string name="two">zwei</string>
+    <string name="three">drei</string>
+    <string name="four">vier</string>
+    <string name="five">fünf</string>
+    <string name="six">sechs</string>
+    <string name="seven">sieben</string>
+    <string name="eight">acht</string>
+    <string name="nine">neun</string>
+    <string name="ten">zehn</string>
+    <string name="eleven">elf</string>
+    <string name="twelve">zwölf</string>
+    <string name="twenty">zwanzig</string>
+    <string name="twenty_five">fünfundzwanzig</string>
+
+    <string name="o_clock">{hours} Uhr</string>
+    <string name="quarter_past">Viertel nach {hours}</string>
+    <string name="half_past">halb {hours}</string>
+    <string name="quarter_to">Viertel vor {hours}</string>
+    <string name="any_past">{minutes} nach {hours}</string>
+    <string name="any_to">{minutes} vor {hours}</string>
+
+    <string name="sample_time">Viertel\nnach\nzwölf</string>
+
+</resources>

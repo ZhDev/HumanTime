@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name" translatable="false">Human Time</string>
+    <string name="about">About</string>
+    <string name="saturation">Saturation</string>
+    <string name="value">Value</string>
+    <string name="title_activity_main">Human Time Settings</string>
+    <string name="title_activity_image_cropper">Image resize</string>
+    <string name="sample_time">half\npast\ntwelve</string>
+    <string name="background">Background</string>
+    <string name="text">Text</string>
+    <string name="style">Style</string>
+    <string name="shadow">Shadow</string>
+    <string name="bold">Bold</string>
+    <string name="italic">Italic</string>
+
+</resources>

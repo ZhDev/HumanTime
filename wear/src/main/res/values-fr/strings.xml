@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="one">une</string>
+    <string name="two">deux</string>
+    <string name="three">trois</string>
+    <string name="four">quatre</string>
+    <string name="five">cinq</string>
+    <string name="six">six</string>
+    <string name="seven">sept</string>
+    <string name="eight">huit</string>
+    <string name="nine">neuf</string>
+    <string name="ten">dix</string>
+    <string name="eleven">onze</string>
+    <string name="twelve">douze</string>
+    <string name="twenty">vingt</string>
+    <string name="twenty_five">vingt-cinq</string>
+
+    <plurals name="hours">
+        <item quantity="one">%s\u00A0heure</item>
+        <item quantity="other">%s\u00A0heures</item>
+    </plurals>
+
+    <string name="o_clock">{hours}</string>
+    <string name="quarter_past">{hours} et quart</string>
+    <string name="half_past">{hours} et demie</string>
+    <string name="quarter_to">{hours} moins\u00A0le quart</string>
+    <string name="any_past">{hours} {minutes}</string>
+    <string name="any_to">{hours} moins {minutes}</string>
+
+    <string name="sample_time">quatre\u00A0heures\nmoins\nvingt-cinq</string>
+
+</resources>

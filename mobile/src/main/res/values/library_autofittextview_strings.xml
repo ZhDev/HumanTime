@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="define_autofittextview"></string>
+    <!-- Author section -->
+    <string name="library_autofittextview_author">Grantland Chew</string>
+    <string name="library_autofittextview_authorWebsite">http://grantland.me</string>
+    <!-- Library section -->
+    <string name="library_autofittextview_libraryName">AutoFitTextView</string>
+    <string name="library_autofittextview_libraryDescription">A TextView that automatically resizes text to fit perfectly within its bounds.</string>
+    <string name="library_autofittextview_libraryWebsite"></string>
+    <string name="library_autofittextview_libraryVersion">0.1.1</string>
+    <!-- OpenSource section -->
+    <string name="library_autofittextview_isOpenSource">true</string>
+    <string name="library_autofittextview_repositoryLink">https://github.com/grantland/android-autofittextview</string>
+    <!-- License section -->
+    <string name="library_autofittextview_licenseId">apache_2_0</string>
+    <!-- Custom variables section -->
+</resources>

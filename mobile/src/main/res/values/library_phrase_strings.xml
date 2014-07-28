@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="define_phrase"></string>
+    <!-- Author section -->
+    <string name="library_phrase_author">Square, Inc.</string>
+    <string name="library_phrase_authorWebsite">https://squareup.com</string>
+    <!-- Library section -->
+    <string name="library_phrase_libraryName">Phrase</string>
+    <string name="library_phrase_libraryDescription">String formatter.</string>
+    <string name="library_phrase_libraryWebsite">http://square.github.io/</string>
+    <string name="library_phrase_libraryVersion">1.0.3</string>
+    <!-- OpenSource section -->
+    <string name="library_phrase_isOpenSource">true</string>
+    <string name="library_phrase_repositoryLink">https://github.com/square/phrase</string>
+    <!-- License section -->
+    <string name="library_phrase_licenseId">apache_2_0</string>
+    <!-- Custom variables section -->
+</resources>

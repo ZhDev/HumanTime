@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="about">Acerca de</string>
+    <string name="saturation">Saturación</string>
+    <string name="value">Valor</string>
+    <string name="title_activity_main">Ajustes de Human Time</string>
+    <string name="title_activity_image_cropper">Redimensionar imagen</string>
+    <string name="sample_time">doce\ny\nmedia</string>
+    <string name="background">Fondo</string>
+    <string name="text">Texto</string>
+    <string name="style">Estilo</string>
+    <string name="shadow">Sombra</string>
+    <string name="bold">Negrita</string>
+    <string name="italic">Cursiva</string>
+
+</resources>
