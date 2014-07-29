@@ -104,7 +104,7 @@ public class WatchFaceActivity extends Activity implements DisplayManager.Displa
                         .decodeStream(openFileInput(Constants.BACKGROUND_ASSET_FILE_NAME));
                 mWatchView.setBackground(new BitmapDrawable(getResources(), bitmap));
             } catch (FileNotFoundException e) {
-                mWatchView.setBackgroundColor(Color.WHITE);
+                mWatchView.setBackground(new ColorDrawable(Color.WHITE));
             }
         }
 
@@ -158,7 +158,7 @@ public class WatchFaceActivity extends Activity implements DisplayManager.Displa
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        mWatchView.setBackgroundColor(Color.BLACK);
+                        mWatchView.setBackground(new ColorDrawable(Color.BLACK));
                         mWatchText.setTextColor(Color.WHITE);
                         mWatchText.setShadowLayer(0.0F, 0.0F, 0.0F, Color.BLACK);
                     }
