@@ -161,7 +161,6 @@ public class WatchFaceActivity extends Activity implements DisplayManager.Displa
                         mWatchView.setBackgroundColor(Color.BLACK);
                         mWatchText.setTextColor(Color.WHITE);
                         mWatchText.setShadowLayer(0.0F, 0.0F, 0.0F, Color.BLACK);
-                        mWatchText.setTypeface(Typeface.DEFAULT, Typeface.NORMAL);
                     }
                 });
                 mDisplayDimmed = true;
