@@ -15,6 +15,7 @@
     <string name="bold">Bold</string>
     <string name="italic">Italic</string>
     <string name="size">Size</string>
+    <string name="alignment">Alignment</string>
 
     <string-array name="text_sizes">
         <item>Large</item>
