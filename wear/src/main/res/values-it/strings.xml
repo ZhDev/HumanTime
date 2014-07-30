@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- The time MUST contain at most 2 spaces so it can be broken later into 2 or 3 sentences.
+    Use '\u00A0' instead to insert non-breaking spaces in numbers and extra spaces in the sentences.
+    It should look like <hours> + space + <time_construction> + space + <minutes>, where <hours>,
+    <time_construction> and <minutes> don't contain any spaces, only '\u00A0'.-->
+
     <string name="one">una</string>
     <string name="two">due</string>
     <string name="three">tre</string>
@@ -13,16 +18,18 @@
     <string name="ten">dieci</string>
     <string name="eleven">undici</string>
     <string name="twelve">dodici</string>
-    <string name="twenty">venti</string>
-    <string name="twenty_five">venticinque</string>
 
     <string name="o_clock">{hours}</string>
+    <string name="five_past">{hours} e cinque</string>
+    <string name="ten_past">{hours} e dieci</string>
     <string name="quarter_past">{hours} e\u00A0un quarto</string>
+    <string name="twenty_past">{hours} e venti</string>
+    <string name="twenty_five_past">{hours} e venticinque</string>
     <string name="half_past">{hours} e mezzo</string>
+    <string name="twenty_five_to">{hours} meno venticinque</string>
+    <string name="twenty_to">{hours} meno venti</string>
     <string name="quarter_to">{hours} meno\u00A0un quarto</string>
-    <string name="any_past">{hours} e {minutes}</string>
-    <string name="any_to">{hours} meno {minutes}</string>
-
-    <string name="sample_time">undici\nmeno\nventicinque</string>
+    <string name="ten_to">{hours} meno dieci</string>
+    <string name="five_to">{hours} meno cinque</string>
 
 </resources>

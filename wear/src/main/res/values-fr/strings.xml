@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- The time MUST contain at most 2 spaces so it can be broken later into 2 or 3 sentences.
+    Use '\u00A0' instead to insert non-breaking spaces in numbers and extra spaces in the sentences.
+    It should look like <hours> + space + <time_construction> + space + <minutes>, where <hours>,
+    <time_construction> and <minutes> don't contain any spaces, only '\u00A0'.-->
+
     <string name="one">une</string>
     <string name="two">deux</string>
     <string name="three">trois</string>
@@ -13,8 +18,6 @@
     <string name="ten">dix</string>
     <string name="eleven">onze</string>
     <string name="twelve">douze</string>
-    <string name="twenty">vingt</string>
-    <string name="twenty_five">vingt-cinq</string>
 
     <plurals name="hours">
         <item quantity="one">%s\u00A0heure</item>
@@ -22,12 +25,16 @@
     </plurals>
 
     <string name="o_clock">{hours}</string>
+    <string name="five_past">{hours} cinq</string>
+    <string name="ten_past">{hours} dix</string>
     <string name="quarter_past">{hours} et quart</string>
+    <string name="twenty_past">{hours} vingt</string>
+    <string name="twenty_five_past">{hours} vingt-cinq</string>
     <string name="half_past">{hours} et demie</string>
+    <string name="twenty_five_to">{hours} moins vingt-cinq</string>
+    <string name="twenty_to">{hours} moins vingt</string>
     <string name="quarter_to">{hours} moins\u00A0le quart</string>
-    <string name="any_past">{hours} {minutes}</string>
-    <string name="any_to">{hours} moins {minutes}</string>
-
-    <string name="sample_time">quatre\u00A0heures\nmoins\nvingt-cinq</string>
+    <string name="ten_to">{hours} moins dix</string>
+    <string name="five_to">{hours} moins cinq</string>
 
 </resources>

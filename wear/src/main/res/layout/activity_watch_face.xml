@@ -19,7 +19,7 @@
         android:gravity="center"
         android:maxLines="3"
         android:textSize="30sp"
-        tools:text="@string/sample_time"
+        tools:text="twenty-five\npast\neleven"
         tools:textColor="@android:color/white"
         tools:textStyle="bold"
         wear:layout_box="all"

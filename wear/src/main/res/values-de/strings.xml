@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- The time MUST contain at most 2 spaces so it can be broken later into 2 or 3 sentences.
+    Use '\u00A0' instead to insert non-breaking spaces in numbers and extra spaces in the sentences.
+    It should look like <hours> + space + <time_construction> + space + <minutes>, where <hours>,
+    <time_construction> and <minutes> don't contain any spaces, only '\u00A0'.-->
+
     <string name="one">ein</string>
     <string name="two">zwei</string>
     <string name="three">drei</string>
@@ -13,16 +18,18 @@
     <string name="ten">zehn</string>
     <string name="eleven">elf</string>
     <string name="twelve">zwölf</string>
-    <string name="twenty">zwanzig</string>
-    <string name="twenty_five">fünfundzwanzig</string>
 
     <string name="o_clock">{hours} Uhr</string>
-    <string name="quarter_past">Viertel nach {hours}</string>
+    <string name="five_past">fünf nach {hours}</string>
+    <string name="ten_past">zehn nach {hours}</string>
+    <string name="quarter_past">viertel nach {hours}</string>
+    <string name="twenty_past">zehn vor\u00A0halb {hours}</string>
+    <string name="twenty_five_past">fünf vor\u00A0halb {hours}</string>
     <string name="half_past">halb {hours}</string>
-    <string name="quarter_to">Viertel vor {hours}</string>
-    <string name="any_past">{minutes} nach {hours}</string>
-    <string name="any_to">{minutes} vor {hours}</string>
-
-    <string name="sample_time">Viertel\nnach\nzwölf</string>
+    <string name="twenty_five_to">fünf nach\u00A0halb {hours}</string>
+    <string name="twenty_to">zehn nach\u00A0halb {hours}</string>
+    <string name="quarter_to">viertel vor {hours}</string>
+    <string name="ten_to">zehn vor {hours}</string>
+    <string name="five_to">fünf vor {hours}</string>
 
 </resources>

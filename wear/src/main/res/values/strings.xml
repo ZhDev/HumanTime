@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- The time MUST contain at most 2 spaces so it can be broken later into 2 or 3 sentences.
+    Use '\u00A0' instead to insert non-breaking spaces in numbers and extra spaces in the sentences.
+    It should look like <hours> + space + <time_construction> + space + <minutes>, where <hours>,
+    <time_construction> and <minutes> don't contain any spaces, only '\u00A0'.-->
+
     <string name="one">one</string>
     <string name="two">two</string>
     <string name="three">three</string>
@@ -13,8 +18,6 @@
     <string name="ten">ten</string>
     <string name="eleven">eleven</string>
     <string name="twelve">twelve</string>
-    <string name="twenty">twenty</string>
-    <string name="twenty_five">twenty-five</string>
 
     <plurals name="hours">
         <item quantity="one">%s</item>
@@ -22,12 +25,16 @@
     </plurals>
 
     <string name="o_clock">{hours} o\'clock</string>
+    <string name="five_past">five past {hours}</string>
+    <string name="ten_past">ten past {hours}</string>
     <string name="quarter_past">quarter past {hours}</string>
+    <string name="twenty_past">twenty past {hours}</string>
+    <string name="twenty_five_past">twenty-five past {hours}</string>
     <string name="half_past">half past {hours}</string>
+    <string name="twenty_five_to">twenty-five to {hours}</string>
+    <string name="twenty_to">twenty to {hours}</string>
     <string name="quarter_to">quarter to {hours}</string>
-    <string name="any_past">{minutes} past {hours}</string>
-    <string name="any_to">{minutes} to {hours}</string>
-
-    <string name="sample_time">twenty-five\npast\neleven</string>
+    <string name="ten_to">ten to {hours}</string>
+    <string name="five_to">five to {hours}</string>
 
 </resources>
