@@ -1,157 +1,34 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright 2014 Julio García Muñoz (ZhDev)
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:clipToPadding="true"
-    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:gravity="center"
+    android:orientation="vertical"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".Main"
-    tools:ignore="ContentDescription">
+    tools:context=".MainActivity">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="vertical">
+    <include layout="@layout/watch_preview" />
 
-        <FrameLayout
-            android:id="@+id/watch_preview"
-            android:layout_width="200dp"
-            android:layout_height="220dp"
-            android:background="@drawable/watch_frame">
+    <include layout="@layout/settings_list" />
 
-            <TextView
-                android:id="@+id/text_preview"
-                android:layout_width="180dp"
-                android:layout_height="180dp"
-                android:layout_gravity="center"
-                android:background="@android:color/holo_blue_dark"
-                android:gravity="center"
-                android:shadowColor="@android:color/black"
-                android:shadowDx="3"
-                android:shadowDy="3"
-                android:shadowRadius="3"
-                android:text="@string/sample_time"
-                android:textColor="@android:color/white"
-                android:textSize="30sp"
-                android:textStyle="bold" />
-        </FrameLayout>
-
-        <LinearLayout
-            android:id="@+id/background"
-            android:layout_width="match_parent"
-            android:layout_height="?android:attr/listPreferredItemHeight"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/background"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
-
-            <ImageButton
-                android:id="@+id/bt_background_color"
-                style="@android:style/Widget.Holo.ActionButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_paint_bucket" />
-
-            <ImageButton
-                android:id="@+id/bt_background_image"
-                style="@android:style/Widget.Holo.ActionButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_gallery" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/text_color"
-            android:layout_width="match_parent"
-            android:layout_height="?android:attr/listPreferredItemHeight"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/text"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
-
-            <ImageButton
-                android:id="@+id/bt_text_color"
-                style="@android:style/Widget.Holo.ActionButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_paint_bucket" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/text_style"
-            android:layout_width="match_parent"
-            android:layout_height="?android:attr/listPreferredItemHeight"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/style"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
-
-            <CheckBox
-                android:id="@+id/cb_italic"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="false"
-                android:text="@string/italic"
-                android:textStyle="italic" />
-
-            <CheckBox
-                android:id="@+id/cb_bold"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="true"
-                android:text="@string/bold"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/text_size"
-            android:layout_width="match_parent"
-            android:layout_height="?android:attr/listPreferredItemHeight"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/size"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
-
-            <Spinner
-                android:id="@+id/sp_size"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:spinnerMode="dropdown"
-                tools:listitem="@android:layout/simple_spinner_item" />
-
-
-        </LinearLayout>
-
-        <Switch
-            android:id="@+id/sw_shadow"
-            android:layout_width="match_parent"
-            android:layout_height="?android:attr/listPreferredItemHeight"
-            android:checked="true"
-            android:text="@string/shadow"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    </LinearLayout>
-</ScrollView>
+</LinearLayout>
