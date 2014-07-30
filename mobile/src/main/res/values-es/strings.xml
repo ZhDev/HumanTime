@@ -13,5 +13,13 @@
     <string name="shadow">Sombra</string>
     <string name="bold">Negrita</string>
     <string name="italic">Cursiva</string>
+    <string name="size">Tamaño</string>
+
+    <string-array name="text_sizes">
+        <item>Grande</item>
+        <item>Mediano</item>
+        <item>Pequeño</item>
+        <item>Extra pequeño</item>
+    </string-array>
 
 </resources>

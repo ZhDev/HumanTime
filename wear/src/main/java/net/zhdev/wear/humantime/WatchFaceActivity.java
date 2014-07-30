@@ -31,6 +31,7 @@ import android.hardware.display.DisplayManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Display;
 import android.widget.FrameLayout;
 
@@ -136,6 +137,9 @@ public class WatchFaceActivity extends Activity implements DisplayManager.Displa
         } else {
             mWatchText.setShadowLayer(0.0F, 0.0F, 0.0F, Color.BLACK);
         }
+
+        float textSize = preferences.getFloat(Constants.TEXT_SIZE_KEY, Constants.TEXT_SIZE_LARGE);
+        mWatchText.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
     }
 
     @Override
@@ -226,6 +230,10 @@ public class WatchFaceActivity extends Activity implements DisplayManager.Displa
                 } else {
                     mWatchText.setShadowLayer(0.0F, 0.0F, 0.0F, Color.BLACK);
                 }
+            } else if (Constants.TEXT_SIZE_KEY.equals(key)) {
+                float textSize = sharedPreferences
+                        .getFloat(Constants.TEXT_SIZE_KEY, Constants.TEXT_SIZE_LARGE);
+                mWatchText.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
             }
         }
     }

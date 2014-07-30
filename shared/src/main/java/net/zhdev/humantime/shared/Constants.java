@@ -24,6 +24,8 @@ package net.zhdev.humantime.shared;
  */
 public final class Constants {
 
+    public static final String PREFS_NAME = "human_time_prefs";
+
     public static final String BACKGROUND_COLOR_KEY = "background_color";
 
     public static final String BACKGROUND_COLOR_PATH = "/background_color";
@@ -52,7 +54,17 @@ public final class Constants {
 
     public static final String TEXT_SHADOW_PATH = "/text_shadow";
 
-    public static final String PREFS_NAME = "human_time_prefs";
+    public static final String TEXT_SIZE_KEY = "text_size";
+
+    public static final String TEXT_SIZE_PATH = "/text_size";
+
+    public static final float TEXT_SIZE_LARGE = 30.0F;
+
+    public static final float TEXT_SIZE_MEDIUM = 25.0F;
+
+    public static final float TEXT_SIZE_SMALL = 20.0F;
+
+    public static final float TEXT_SIZE_EXTRA_SMALL = 15.0F;
 
     public static final String BACKGROUND_ASSET_FILE_NAME = "background_image.png";
 

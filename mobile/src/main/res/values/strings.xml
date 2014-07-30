@@ -14,5 +14,13 @@
     <string name="shadow">Shadow</string>
     <string name="bold">Bold</string>
     <string name="italic">Italic</string>
+    <string name="size">Size</string>
+
+    <string-array name="text_sizes">
+        <item>Large</item>
+        <item>Medium</item>
+        <item>Small</item>
+        <item>Extra small</item>
+    </string-array>
 
 </resources>

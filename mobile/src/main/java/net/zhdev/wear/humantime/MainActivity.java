@@ -40,12 +40,16 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -73,6 +77,8 @@ public class MainActivity extends WearApiActivity
     private SharedPreferences mSharedPreferences;
 
     private TextView mTextPreview;
+
+    private Spinner mSize;
 
     private CheckBox mItalic;
 
@@ -136,6 +142,12 @@ public class MainActivity extends WearApiActivity
             }
         });
 
+        mSize = (Spinner) findViewById(R.id.sp_size);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter
+                .createFromResource(this, R.array.text_sizes, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSize.setAdapter(adapter);
+
         mItalic = (CheckBox) findViewById(R.id.cb_italic);
         mBold = (CheckBox) findViewById(R.id.cb_bold);
 
@@ -144,6 +156,39 @@ public class MainActivity extends WearApiActivity
         initWithStoredValues();
 
         setElementsEnabled(false);
+
+        // Set the listeners after setting the restored values
+
+        mSize.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                CharSequence selection = (CharSequence) parent.getItemAtPosition(position);
+                float size;
+                switch (position) {
+                    case 0:
+                        size = Constants.TEXT_SIZE_LARGE;
+                        break;
+                    case 1:
+                        size = Constants.TEXT_SIZE_MEDIUM;
+                        break;
+                    case 2:
+                        size = Constants.TEXT_SIZE_SMALL;
+                        break;
+                    case 3:
+                        size = Constants.TEXT_SIZE_EXTRA_SMALL;
+                        break;
+                    default:
+                        size = Constants.TEXT_SIZE_LARGE;
+                        break;
+                }
+                setTextSize(size, true);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
         CompoundButton.OnCheckedChangeListener checkedListener
                 = new CompoundButton.OnCheckedChangeListener() {
@@ -219,6 +264,7 @@ public class MainActivity extends WearApiActivity
         setImageButtonEnabled(mBackgroundColor, enabled);
         setImageButtonEnabled(mBackgroundImage, enabled);
         setImageButtonEnabled(mTextColor, enabled);
+        mSize.setEnabled(enabled);
         mItalic.setEnabled(enabled);
         mBold.setEnabled(enabled);
         mShadow.setEnabled(enabled);
@@ -300,6 +346,21 @@ public class MainActivity extends WearApiActivity
         boolean textShadow = mSharedPreferences.getBoolean(Constants.TEXT_SHADOW_KEY, true);
         setTextShadow(textShadow, false);
         mShadow.setChecked(textShadow);
+
+        float textSize = mSharedPreferences
+                .getFloat(Constants.TEXT_SIZE_KEY, Constants.TEXT_SIZE_LARGE);
+        int selection = 0;
+        if (textSize == Constants.TEXT_SIZE_LARGE) {
+            selection = 0;
+        } else if (textSize == Constants.TEXT_SIZE_MEDIUM) {
+            selection = 1;
+        } else if (textSize == Constants.TEXT_SIZE_SMALL) {
+            selection = 2;
+        } else if (textSize == Constants.TEXT_SIZE_EXTRA_SMALL) {
+            selection = 3;
+        }
+        mSize.setSelection(selection);
+        setTextSize(textSize, false);
     }
 
     /**
@@ -370,6 +431,21 @@ public class MainActivity extends WearApiActivity
         }
     }
 
+    /**
+     * Sets the size of the text, both in the preview watch face and syncing the data with the
+     * Wearable Data Layer.
+     *
+     * @param size    the dimension, in SP
+     * @param putData true if the action should be synced with the Wearable Data Layer, false
+     *                otherwise
+     */
+    private void setTextSize(float size, boolean putData) {
+        mTextPreview.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
+        if (putData) {
+            putData(Constants.TEXT_SIZE_PATH, Constants.TEXT_SIZE_KEY, size);
+        }
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
@@ -430,6 +506,10 @@ public class MainActivity extends WearApiActivity
         } else if (value instanceof Asset) {
             dataMap.putAsset(key, (Asset) value);
             editor.putLong(key, System.currentTimeMillis());
+        } else if (value instanceof Float) {
+            float casted = (Float) value;
+            dataMap.putFloat(key, casted);
+            editor.putFloat(key, casted);
         } else {
             throw new IllegalArgumentException("Invalid value: " + value);
         }
