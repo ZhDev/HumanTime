@@ -15,12 +15,19 @@
     <string name="italic">Cursiva</string>
     <string name="size">Tamaño</string>
     <string name="position">Posición</string>
+    <string name="caps">Mayúsculas</string>
 
     <string-array name="text_sizes">
         <item>Grande</item>
         <item>Mediano</item>
         <item>Pequeño</item>
         <item>Extra pequeño</item>
+    </string-array>
+
+    <string-array name="text_caps">
+        <item>ninguna</item>
+        <item>TODAS</item>
+        <item>Primera</item>
     </string-array>
 
 </resources>

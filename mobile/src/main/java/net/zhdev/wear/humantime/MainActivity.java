@@ -85,6 +85,8 @@ public class MainActivity extends WearApiActivity
 
     private Spinner mSize;
 
+    private Spinner mCaps;
+
     private CheckBox mItalic;
 
     private CheckBox mBold;
@@ -177,6 +179,12 @@ public class MainActivity extends WearApiActivity
                 }
             }
         });
+
+        mCaps = (Spinner) findViewById(R.id.sp_caps);
+        adapter = ArrayAdapter.createFromResource(this, R.array.text_caps,
+                android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mCaps.setAdapter(adapter);
 
         initWithStoredValues();
 
