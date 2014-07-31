@@ -16,12 +16,19 @@
     <string name="italic">Italic</string>
     <string name="size">Size</string>
     <string name="position">Position</string>
+    <string name="caps">Caps</string>
 
     <string-array name="text_sizes">
         <item>Large</item>
         <item>Medium</item>
         <item>Small</item>
         <item>Extra small</item>
+    </string-array>
+
+    <string-array name="text_caps">
+        <item>none</item>
+        <item>ALL</item>
+        <item>First</item>
     </string-array>
 
 </resources>

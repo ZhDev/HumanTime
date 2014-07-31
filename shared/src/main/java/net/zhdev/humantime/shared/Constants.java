@@ -88,6 +88,16 @@ public final class Constants {
 
     public static final int TEXT_POSITION_BOTTOM_RIGHT = 8;
 
+    public static final String TEXT_CASE_KEY = "text_case";
+
+    public static final String TEXT_CASE_PATH = "/text_case";
+
+    public static final int TEXT_CASE_NO_CAPS = 0;
+
+    public static final int TEXT_CASE_ALL_CAPS = 1;
+
+    public static final int TEXT_CASE_FIRST_CAP = 2;
+
     public static final String BACKGROUND_ASSET_FILE_NAME = "background_image.png";
 
     public static final String BACKGROUND_ASSET_LAST_CHANGED_KEY = "background_last_changed";

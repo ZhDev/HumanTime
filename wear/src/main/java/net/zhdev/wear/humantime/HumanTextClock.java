@@ -16,6 +16,8 @@
 
 package net.zhdev.wear.humantime;
 
+import net.zhdev.humantime.shared.Constants;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -67,6 +69,7 @@ public class HumanTextClock extends AutofitTextView {
 
     private TimeConverter mTimeConverter;
 
+    private int mTextCase;
 
     /**
      * Creates a new clock using the default patterns for the current locale.
@@ -140,6 +143,7 @@ public class HumanTextClock extends AutofitTextView {
 
             }
         });
+        mTextCase = Constants.TEXT_CASE_NO_CAPS;
         createTime(mTimeZone);
     }
 
@@ -234,6 +238,18 @@ public class HumanTextClock extends AutofitTextView {
                 .convertTime(mTime.get(Calendar.HOUR), mTime.get(Calendar.MINUTE))
                 .replace(' ', '\n');
 
+        // We assume that the time patterns in strings.xml are always in lowercase
+        switch (mTextCase) {
+            case Constants.TEXT_CASE_NO_CAPS:
+                break;
+            case Constants.TEXT_CASE_ALL_CAPS:
+                time = time.toUpperCase();
+                break;
+            case Constants.TEXT_CASE_FIRST_CAP:
+                time = time.substring(0, 1).toUpperCase() + time.substring(1);
+                break;
+        }
+
         setTime(time);
     }
 
@@ -247,6 +263,16 @@ public class HumanTextClock extends AutofitTextView {
         if (!time.equals(mCurrentText)) {
             mCurrentText = time;
             startAnimation(mAnimationOut);
+        }
+    }
+
+    /**
+     * @see net.zhdev.humantime.shared.Constants
+     */
+    public void setTextCase(int textCase) {
+        mTextCase = textCase;
+        if (mAttached) {
+            onTimeChanged();
         }
     }
 }
