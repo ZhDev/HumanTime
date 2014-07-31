@@ -33,6 +33,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
+import android.view.Gravity;
 import android.widget.FrameLayout;
 
 import java.io.FileNotFoundException;
@@ -140,6 +141,43 @@ public class WatchFaceActivity extends Activity implements DisplayManager.Displa
 
         float textSize = preferences.getFloat(Constants.TEXT_SIZE_KEY, Constants.TEXT_SIZE_LARGE);
         mWatchText.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
+
+        int textPosition = preferences
+                .getInt(Constants.TEXT_POSITION_KEY, Constants.TEXT_POSITION_CENTER_CENTER);
+        int gravity;
+        switch (textPosition) {
+            case Constants.TEXT_POSITION_TOP_LEFT:
+                gravity = Gravity.TOP | Gravity.LEFT;
+                break;
+            case Constants.TEXT_POSITION_TOP_CENTER:
+                gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
+                break;
+            case Constants.TEXT_POSITION_TOP_RIGHT:
+                gravity = Gravity.TOP | Gravity.RIGHT;
+                break;
+            case Constants.TEXT_POSITION_CENTER_LEFT:
+                gravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
+                break;
+            case Constants.TEXT_POSITION_CENTER_CENTER:
+                gravity = Gravity.CENTER;
+                break;
+            case Constants.TEXT_POSITION_CENTER_RIGHT:
+                gravity = Gravity.CENTER_VERTICAL | Gravity.RIGHT;
+                break;
+            case Constants.TEXT_POSITION_BOTTOM_LEFT:
+                gravity = Gravity.BOTTOM | Gravity.LEFT;
+                break;
+            case Constants.TEXT_POSITION_BOTTOM_CENTER:
+                gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
+                break;
+            case Constants.TEXT_POSITION_BOTTOM_RIGHT:
+                gravity = Gravity.BOTTOM | Gravity.RIGHT;
+                break;
+            default:
+                gravity = Gravity.CENTER;
+                break;
+        }
+        mWatchText.setGravity(gravity);
     }
 
     @Override
@@ -234,6 +272,43 @@ public class WatchFaceActivity extends Activity implements DisplayManager.Displa
                 float textSize = sharedPreferences
                         .getFloat(Constants.TEXT_SIZE_KEY, Constants.TEXT_SIZE_LARGE);
                 mWatchText.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
+            } else if (Constants.TEXT_POSITION_KEY.equals(key)) {
+                int textPosition = sharedPreferences.getInt(Constants.TEXT_POSITION_KEY,
+                        Constants.TEXT_POSITION_CENTER_CENTER);
+                int gravity;
+                switch (textPosition) {
+                    case Constants.TEXT_POSITION_TOP_LEFT:
+                        gravity = Gravity.TOP | Gravity.LEFT;
+                        break;
+                    case Constants.TEXT_POSITION_TOP_CENTER:
+                        gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
+                        break;
+                    case Constants.TEXT_POSITION_TOP_RIGHT:
+                        gravity = Gravity.TOP | Gravity.RIGHT;
+                        break;
+                    case Constants.TEXT_POSITION_CENTER_LEFT:
+                        gravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
+                        break;
+                    case Constants.TEXT_POSITION_CENTER_CENTER:
+                        gravity = Gravity.CENTER;
+                        break;
+                    case Constants.TEXT_POSITION_CENTER_RIGHT:
+                        gravity = Gravity.CENTER_VERTICAL | Gravity.RIGHT;
+                        break;
+                    case Constants.TEXT_POSITION_BOTTOM_LEFT:
+                        gravity = Gravity.BOTTOM | Gravity.LEFT;
+                        break;
+                    case Constants.TEXT_POSITION_BOTTOM_CENTER:
+                        gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
+                        break;
+                    case Constants.TEXT_POSITION_BOTTOM_RIGHT:
+                        gravity = Gravity.BOTTOM | Gravity.RIGHT;
+                        break;
+                    default:
+                        gravity = Gravity.CENTER;
+                        break;
+                }
+                mWatchText.setGravity(gravity);
             }
         }
     }

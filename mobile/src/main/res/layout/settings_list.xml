@@ -30,7 +30,6 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
         android:gravity="center_vertical"
         android:orientation="vertical">
 
@@ -86,6 +85,29 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/text_size"
+            android:layout_width="match_parent"
+            android:layout_height="?android:attr/listPreferredItemHeight"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/size"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <Spinner
+                android:id="@+id/sp_size"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:spinnerMode="dropdown"
+                tools:listitem="@android:layout/simple_spinner_item" />
+
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/text_style"
             android:layout_width="match_parent"
             android:layout_height="?android:attr/listPreferredItemHeight"
@@ -107,6 +129,7 @@
                 android:text="@string/italic"
                 android:textStyle="italic" />
 
+
             <CheckBox
                 android:id="@+id/cb_bold"
                 android:layout_width="wrap_content"
@@ -117,7 +140,7 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/text_size"
+            android:id="@+id/text_alignment"
             android:layout_width="match_parent"
             android:layout_height="?android:attr/listPreferredItemHeight"
             android:gravity="center_vertical"
@@ -127,15 +150,15 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/size"
+                android:text="@string/position"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
-            <Spinner
-                android:id="@+id/sp_size"
+            <ImageButton
+                android:id="@+id/bt_position"
+                style="@android:style/Widget.Holo.ActionButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:spinnerMode="dropdown"
-                tools:listitem="@android:layout/simple_spinner_item" />
+                android:src="@drawable/position" />
 
 
         </LinearLayout>
