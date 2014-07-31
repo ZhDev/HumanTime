@@ -196,7 +196,6 @@ public class MainActivity extends WearApiActivity
         mSize.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                CharSequence selection = (CharSequence) parent.getItemAtPosition(position);
                 float size;
                 switch (position) {
                     case 0:
@@ -239,6 +238,18 @@ public class MainActivity extends WearApiActivity
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 setTextShadow(isChecked, true);
+            }
+        });
+
+        mCaps.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                setTextCase(position, true);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
             }
         });
     }
@@ -298,11 +309,12 @@ public class MainActivity extends WearApiActivity
         setImageButtonEnabled(mBackgroundColor, enabled);
         setImageButtonEnabled(mBackgroundImage, enabled);
         setImageButtonEnabled(mTextColor, enabled);
+        setImageButtonEnabled(mPosition, enabled);
         mSize.setEnabled(enabled);
         mItalic.setEnabled(enabled);
         mBold.setEnabled(enabled);
         mShadow.setEnabled(enabled);
-        setImageButtonEnabled(mPosition, enabled);
+        mCaps.setEnabled(enabled);
     }
 
     /**
@@ -401,6 +413,11 @@ public class MainActivity extends WearApiActivity
                 .getInt(Constants.TEXT_POSITION_KEY, Constants.TEXT_POSITION_CENTER_CENTER);
         ((LevelListDrawable) mPosition.getDrawable()).setLevel(textPosition);
         setTextPosition(textPosition, false);
+
+        int textCase = mSharedPreferences
+                .getInt(Constants.TEXT_CASE_KEY, Constants.TEXT_CASE_NO_CAPS);
+        mCaps.setSelection(textCase);
+        setTextCase(textCase, false);
     }
 
     /**
@@ -531,6 +548,36 @@ public class MainActivity extends WearApiActivity
         mTextPreview.setGravity(gravity);
         if (putData) {
             putData(Constants.TEXT_POSITION_PATH, Constants.TEXT_POSITION_KEY, position);
+        }
+    }
+
+    /**
+     * Sets the text case to be lowercase, uppercase or only the first letter should be capitalized
+     *
+     * @param textCase the text case from {@link net.zhdev.humantime.shared.Constants}
+     * @param putData  true if the action should be synced with the Wearable Data Layer, false
+     *                 otherwise
+     */
+    private void setTextCase(int textCase, boolean putData) {
+        String newText = mTextPreview.getText().toString();
+        switch (textCase) {
+            case Constants.TEXT_CASE_NO_CAPS:
+                newText = newText.toLowerCase();
+                break;
+            case Constants.TEXT_CASE_ALL_CAPS:
+                newText = newText.toUpperCase();
+                break;
+            case Constants.TEXT_CASE_FIRST_CAP:
+                newText = newText.substring(0, 1).toUpperCase() + newText.substring(1)
+                        .toLowerCase();
+                break;
+            default:
+                newText = newText.toLowerCase();
+                break;
+        }
+        mTextPreview.setText(newText);
+        if (putData) {
+            putData(Constants.TEXT_CASE_PATH, Constants.TEXT_CASE_KEY, textCase);
         }
     }
 
