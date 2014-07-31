@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright 2014 Julio García Muñoz (ZhDev)
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    tools:context=".MainActivity">
+
+    <TableLayout
+        android:id="@+id/table"
+        style="?android:attr/buttonBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true">
+
+        <TableRow style="?android:attr/buttonBarStyle">
+
+            <Button
+                android:id="@+id/top_right"
+                style="?android:attr/buttonBarButtonStyle" />
+
+            <Button
+                android:id="@+id/top_center"
+                style="?android:attr/buttonBarButtonStyle" />
+
+            <Button
+                android:id="@+id/top_left"
+                style="?android:attr/buttonBarButtonStyle" />
+        </TableRow>
+
+        <TableRow style="?android:attr/buttonBarStyle">
+
+            <Button
+                android:id="@+id/center_right"
+                style="?android:attr/buttonBarButtonStyle" />
+
+            <Button
+                android:id="@+id/center_center"
+                style="?android:attr/buttonBarButtonStyle" />
+
+            <Button
+                android:id="@+id/center_left"
+                style="?android:attr/buttonBarButtonStyle" />
+        </TableRow>
+
+        <TableRow style="?android:attr/buttonBarStyle">
+
+            <Button
+                android:id="@+id/bottom_right"
+                style="?android:attr/buttonBarButtonStyle" />
+
+            <Button
+                android:id="@+id/bottom_center"
+                style="?android:attr/buttonBarButtonStyle" />
+
+            <Button
+                android:id="@+id/bottom_left"
+                style="?android:attr/buttonBarButtonStyle" />
+        </TableRow>
+
+    </TableLayout>
+
+    <View
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_alignLeft="@+id/table"
+        android:layout_alignTop="@+id/table"
+        android:background="@android:color/holo_blue_dark" />
+
+    <View
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_alignTop="@+id/table"
+        android:layout_centerHorizontal="true"
+        android:background="@android:color/holo_blue_dark" />
+
+    <View
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_alignRight="@+id/table"
+        android:layout_alignTop="@+id/table"
+        android:background="@android:color/holo_blue_dark" />
+
+    <View
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_alignTop="@+id/table"
+        android:layout_centerVertical="true"
+        android:background="@android:color/holo_blue_dark" />
+
+    <View
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_centerInParent="true"
+        android:background="@android:color/holo_blue_dark" />
+
+    <View
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_alignRight="@+id/table"
+        android:layout_centerVertical="true"
+        android:background="@android:color/holo_blue_dark" />
+
+    <View
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_alignBottom="@+id/table"
+        android:layout_alignLeft="@+id/table"
+        android:background="@android:color/holo_blue_dark" />
+
+    <View
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_alignBottom="@+id/table"
+        android:layout_centerHorizontal="true"
+        android:background="@android:color/holo_blue_dark" />
+
+    <View
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_alignBottom="@+id/table"
+        android:layout_alignRight="@+id/table"
+        android:background="@android:color/holo_blue_dark" />
+</RelativeLayout>

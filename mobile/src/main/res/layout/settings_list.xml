@@ -151,34 +151,15 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/alignment"
+                android:text="@string/position"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
-            <RadioGroup
+            <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <RadioButton
-                    android:id="@+id/rbAlignLeft"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:button="@drawable/ic_align_left"
-                    android:checked="true"/>
-
-                <RadioButton
-                    android:id="@+id/rbAlignCenter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:button="@drawable/ic_align_center"/>
-
-                <RadioButton
-                    android:id="@+id/rbAlignRight"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:button="@drawable/ic_align_right"/>
-
-            </RadioGroup>
+                style="@android:style/Widget.Holo.ActionButton"
+                android:src="@drawable/position"
+                />
 
 
         </LinearLayout>

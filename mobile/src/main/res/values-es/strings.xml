@@ -14,7 +14,7 @@
     <string name="bold">Negrita</string>
     <string name="italic">Cursiva</string>
     <string name="size">Tamaño</string>
-    <string name="alignment">Alineación</string>
+    <string name="position">Posición</string>
 
     <string-array name="text_sizes">
         <item>Grande</item>
