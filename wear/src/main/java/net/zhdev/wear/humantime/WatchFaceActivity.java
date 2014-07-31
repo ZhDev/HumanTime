@@ -178,6 +178,9 @@ public class WatchFaceActivity extends Activity implements DisplayManager.Displa
                 break;
         }
         mWatchText.setGravity(gravity);
+
+        int textCase = preferences.getInt(Constants.TEXT_CASE_KEY, Constants.TEXT_CASE_NO_CAPS);
+        mWatchText.setTextCase(textCase);
     }
 
     @Override
@@ -309,6 +312,10 @@ public class WatchFaceActivity extends Activity implements DisplayManager.Displa
                         break;
                 }
                 mWatchText.setGravity(gravity);
+            } else if (Constants.TEXT_CASE_KEY.equals(key)) {
+                int textCase = sharedPreferences.getInt(Constants.TEXT_CASE_KEY,
+                        Constants.TEXT_CASE_NO_CAPS);
+                mWatchText.setTextCase(textCase);
             }
         }
     }
