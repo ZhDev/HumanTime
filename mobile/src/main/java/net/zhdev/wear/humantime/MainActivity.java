@@ -37,10 +37,12 @@ import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LevelListDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -64,11 +66,14 @@ import java.io.InputStream;
  * @author Julio García Muñoz (ZhDev)
  */
 public class MainActivity extends WearApiActivity
-        implements ColorPickerDialogFragment.ColorPickerDialogListener {
+        implements ColorPickerDialogFragment.ColorPickerDialogListener,
+        PositionPickerDialogFragment.PositionPickerDialogListener {
 
     private static final String DIALOG_BACKGROUND_COLOR_PICKER_TAG = "background";
 
     private static final String DIALOG_TEXT_COLOR_PICKER_TAG = "text";
+
+    private static final String DIALOG_POSITION_PICKER_TAG = "position";
 
     private static final int REQUEST_PICK_IMAGE = 0;
 
@@ -92,6 +97,8 @@ public class MainActivity extends WearApiActivity
 
     private ImageButton mTextColor;
 
+    private ImageButton mPosition;
+
     private static Asset createAssetFromBitmap(Bitmap bitmap) {
         final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteStream);
@@ -113,6 +120,8 @@ public class MainActivity extends WearApiActivity
             @Override
             public void onClick(View v) {
                 if (v.isEnabled()) {
+                    // Adding an onClickListener to an ImageButton forces the clickable state to always
+                    // be true, even if the view is disabled
                     showColorPicker(DIALOG_BACKGROUND_COLOR_PICKER_TAG);
                 }
             }
@@ -123,6 +132,8 @@ public class MainActivity extends WearApiActivity
             @Override
             public void onClick(View v) {
                 if (v.isEnabled()) {
+                    // Adding an onClickListener to an ImageButton forces the clickable state to always
+                    // be true, even if the view is disabled
                     Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                     intent.setType("image/*");
                     startActivityForResult(intent, REQUEST_PICK_IMAGE);
@@ -153,11 +164,26 @@ public class MainActivity extends WearApiActivity
 
         mShadow = (Switch) findViewById(R.id.sw_shadow);
 
+        mPosition = (ImageButton) findViewById(R.id.bt_position);
+        mPosition.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Adding an onClickListener to an ImageButton forces the clickable state to always
+                // be true, even if the view is disabled
+                if (v.isEnabled()) {
+                    PositionPickerDialogFragment fragment = PositionPickerDialogFragment
+                            .newInstance();
+                    fragment.show(getFragmentManager(), DIALOG_POSITION_PICKER_TAG);
+                }
+            }
+        });
+
         initWithStoredValues();
 
         setElementsEnabled(false);
 
-        // Set the listeners after setting the restored values
+        // Set some of the listeners after setting the restored values to prevent their side calls
+        // when their values are initially set
 
         mSize.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -268,6 +294,7 @@ public class MainActivity extends WearApiActivity
         mItalic.setEnabled(enabled);
         mBold.setEnabled(enabled);
         mShadow.setEnabled(enabled);
+        setImageButtonEnabled(mPosition, enabled);
     }
 
     /**
@@ -361,6 +388,11 @@ public class MainActivity extends WearApiActivity
         }
         mSize.setSelection(selection);
         setTextSize(textSize, false);
+
+        int textPosition = mSharedPreferences
+                .getInt(Constants.TEXT_POSITION_KEY, Constants.TEXT_POSITION_CENTER_CENTER);
+        ((LevelListDrawable) mPosition.getDrawable()).setLevel(textPosition);
+        setTextPosition(textPosition, false);
     }
 
     /**
@@ -446,6 +478,54 @@ public class MainActivity extends WearApiActivity
         }
     }
 
+    /**
+     * Sets the position of the text on the screen, both in the preview watch face and syncing the
+     * data with the Wearable Data Layer.
+     *
+     * @param position the position where the text should be aligned
+     * @param putData  true if the action should be synced with the Wearable Data Layer, false
+     *                 otherwise
+     */
+    private void setTextPosition(int position, boolean putData) {
+        int gravity;
+        switch (position) {
+            case Constants.TEXT_POSITION_TOP_LEFT:
+                gravity = Gravity.TOP | Gravity.LEFT;
+                break;
+            case Constants.TEXT_POSITION_TOP_CENTER:
+                gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
+                break;
+            case Constants.TEXT_POSITION_TOP_RIGHT:
+                gravity = Gravity.TOP | Gravity.RIGHT;
+                break;
+            case Constants.TEXT_POSITION_CENTER_LEFT:
+                gravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
+                break;
+            case Constants.TEXT_POSITION_CENTER_CENTER:
+                gravity = Gravity.CENTER;
+                break;
+            case Constants.TEXT_POSITION_CENTER_RIGHT:
+                gravity = Gravity.CENTER_VERTICAL | Gravity.RIGHT;
+                break;
+            case Constants.TEXT_POSITION_BOTTOM_LEFT:
+                gravity = Gravity.BOTTOM | Gravity.LEFT;
+                break;
+            case Constants.TEXT_POSITION_BOTTOM_CENTER:
+                gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
+                break;
+            case Constants.TEXT_POSITION_BOTTOM_RIGHT:
+                gravity = Gravity.BOTTOM | Gravity.RIGHT;
+                break;
+            default:
+                gravity = Gravity.CENTER;
+                break;
+        }
+        mTextPreview.setGravity(gravity);
+        if (putData) {
+            putData(Constants.TEXT_POSITION_PATH, Constants.TEXT_POSITION_KEY, position);
+        }
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
@@ -481,6 +561,13 @@ public class MainActivity extends WearApiActivity
             mTextPreview.setTextColor(color);
             putData(Constants.TEXT_COLOR_PATH, Constants.TEXT_COLOR_KEY, color);
         }
+    }
+
+    @Override
+    public void onPositionPicked(DialogFragment dialog, int position) {
+        LevelListDrawable levelListDrawable = (LevelListDrawable) mPosition.getDrawable();
+        levelListDrawable.setLevel(position);
+        setTextPosition(position, true);
     }
 
     /**

@@ -30,7 +30,6 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
         android:gravity="center_vertical"
         android:orientation="vertical">
 
@@ -155,11 +154,11 @@
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <ImageButton
+                android:id="@+id/bt_position"
+                style="@android:style/Widget.Holo.ActionButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                style="@android:style/Widget.Holo.ActionButton"
-                android:src="@drawable/position"
-                />
+                android:src="@drawable/position" />
 
 
         </LinearLayout>

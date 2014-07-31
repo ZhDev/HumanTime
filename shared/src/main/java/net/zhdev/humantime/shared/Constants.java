@@ -66,6 +66,28 @@ public final class Constants {
 
     public static final float TEXT_SIZE_EXTRA_SMALL = 15.0F;
 
+    public static final String TEXT_POSITION_KEY = "text_position";
+
+    public static final String TEXT_POSITION_PATH = "/text_position";
+
+    public static final int TEXT_POSITION_TOP_LEFT = 0;
+
+    public static final int TEXT_POSITION_TOP_CENTER = 1;
+
+    public static final int TEXT_POSITION_TOP_RIGHT = 2;
+
+    public static final int TEXT_POSITION_CENTER_LEFT = 3;
+
+    public static final int TEXT_POSITION_CENTER_CENTER = 4;
+
+    public static final int TEXT_POSITION_CENTER_RIGHT = 5;
+
+    public static final int TEXT_POSITION_BOTTOM_LEFT = 6;
+
+    public static final int TEXT_POSITION_BOTTOM_CENTER = 7;
+
+    public static final int TEXT_POSITION_BOTTOM_RIGHT = 8;
+
     public static final String BACKGROUND_ASSET_FILE_NAME = "background_image.png";
 
     public static final String BACKGROUND_ASSET_LAST_CHANGED_KEY = "background_last_changed";
