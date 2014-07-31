@@ -99,8 +99,11 @@ public class DataLayerListenerService extends WearableListenerService {
                     boolean showShadow = dataMap.getBoolean(Constants.TEXT_SHADOW_KEY);
                     editor.putBoolean(Constants.TEXT_SHADOW_KEY, showShadow);
                 } else if (Constants.TEXT_SIZE_PATH.equals(uriPath)) {
-                    float textSize = dataMap.getFloat(Constants.TEXT_SIZE_KEY);
-                    editor.putFloat(Constants.TEXT_SIZE_KEY, textSize);
+                    float size = dataMap.getFloat(Constants.TEXT_SIZE_KEY);
+                    editor.putFloat(Constants.TEXT_SIZE_KEY, size);
+                } else if (Constants.TEXT_POSITION_PATH.equals(uriPath)) {
+                    int position = dataMap.getInt(Constants.TEXT_POSITION_KEY);
+                    editor.putInt(Constants.TEXT_POSITION_KEY, position);
                 }
 
                 editor.apply();
