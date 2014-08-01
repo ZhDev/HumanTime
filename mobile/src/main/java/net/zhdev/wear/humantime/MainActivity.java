@@ -54,11 +54,12 @@ import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.Switch;
-import android.widget.TextView;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+
+import me.grantland.widget.AutofitTextView;
 
 /**
  * MainActivity implements a settings screen where the user can select different aspects of how the
@@ -82,7 +83,7 @@ public class MainActivity extends WearApiActivity
 
     private SharedPreferences mSharedPreferences;
 
-    private TextView mTextPreview;
+    private AutofitTextView mTextPreview;
 
     private Spinner mTextSizeSpinner;
 
@@ -102,6 +103,8 @@ public class MainActivity extends WearApiActivity
 
     private ImageButton mPositionButton;
 
+    private Spinner mTextFontSpinner;
+
     private static Asset createAssetFromBitmap(Bitmap bitmap) {
         final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteStream);
@@ -116,7 +119,7 @@ public class MainActivity extends WearApiActivity
 
         mSharedPreferences = getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE);
 
-        mTextPreview = (TextView) findViewById(R.id.text_preview);
+        mTextPreview = (AutofitTextView) findViewById(R.id.text_preview);
 
         mBackgroundColorButton = (ImageButton) findViewById(R.id.bt_background_color);
         mBackgroundColorButton.setOnClickListener(new View.OnClickListener() {
@@ -186,6 +189,11 @@ public class MainActivity extends WearApiActivity
                 android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mTextCaseSpinner.setAdapter(adapter);
+
+        mTextFontSpinner = (Spinner) findViewById(R.id.sp_font);
+        FontAdapter fontAdapter = new FontAdapter(this, android.R.layout.simple_spinner_item);
+        fontAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mTextFontSpinner.setAdapter(fontAdapter);
 
         initWithStoredValues();
 
@@ -273,6 +281,18 @@ public class MainActivity extends WearApiActivity
 
             }
         });
+
+        mTextFontSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                // TODO: store, sync and load. Reset the text to force an autofit because the typeface change is not taken into account
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
     }
 
     @Override
@@ -336,6 +356,7 @@ public class MainActivity extends WearApiActivity
         mBoldCheckBox.setEnabled(enabled);
         mShadowSwitch.setEnabled(enabled);
         mTextCaseSpinner.setEnabled(enabled);
+        mTextFontSpinner.setEnabled(enabled);
     }
 
     /**
@@ -369,6 +390,7 @@ public class MainActivity extends WearApiActivity
         loadTextShadowPreview();
         loadTextSizePreview();
         loadTextStylePreview();
+        loadTextFontPreview();
     }
 
     private void storePreference(String key, Object value) {
@@ -550,6 +572,10 @@ public class MainActivity extends WearApiActivity
         }
         mBoldCheckBox.setChecked(bold);
         mItalicCheckBox.setChecked(italic);
+    }
+
+    private void loadTextFontPreview() {
+        // TODO
     }
 
     /**

@@ -15,6 +15,7 @@
     <string name="size">Tamaño</string>
     <string name="position">Posición</string>
     <string name="caps">Mayúsculas</string>
+    <string name="font">Fuente</string>
 
     <string-array name="text_sizes">
         <item>Grande</item>
@@ -27,6 +28,14 @@
         <item>ninguna</item>
         <item>TODAS</item>
         <item>Primera</item>
+    </string-array>
+
+    <string-array name="text_fonts">
+        <item>Por defecto</item>
+        <item>Crafty Girls</item>
+        <item>Dancing Script</item>
+        <item>Lobster Two</item>
+        <item>Press Start 2P</item>
     </string-array>
 
 </resources>
