@@ -116,7 +116,7 @@ public class DataLayerListenerService extends WearableListenerService {
 
 
     /**
-     * Saves into persistent memory an asset put into the Wear Data Layer
+     * Saves into persistent memory an asset existing in the Wear Data Layer
      *
      * @param asset the <code>Asset</code> that will be saves into a file
      * @return true if the asset was correctly retrieved and stored, false otherwise
