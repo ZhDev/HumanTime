@@ -31,21 +31,28 @@ import android.app.DialogFragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LevelListDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -60,11 +67,14 @@ import java.io.InputStream;
  * @author Julio García Muñoz (ZhDev)
  */
 public class MainActivity extends WearApiActivity
-        implements ColorPickerDialogFragment.ColorPickerDialogListener {
+        implements ColorPickerDialogFragment.ColorPickerDialogListener,
+        PositionPickerDialogFragment.PositionPickerDialogListener {
 
     private static final String DIALOG_BACKGROUND_COLOR_PICKER_TAG = "background";
 
     private static final String DIALOG_TEXT_COLOR_PICKER_TAG = "text";
+
+    private static final String DIALOG_POSITION_PICKER_TAG = "position";
 
     private static final int REQUEST_PICK_IMAGE = 0;
 
@@ -74,17 +84,23 @@ public class MainActivity extends WearApiActivity
 
     private TextView mTextPreview;
 
-    private CheckBox mItalic;
+    private Spinner mTextSizeSpinner;
 
-    private CheckBox mBold;
+    private Spinner mTextCaseSpinner;
 
-    private Switch mShadow;
+    private CheckBox mItalicCheckBox;
 
-    private ImageButton mBackgroundColor;
+    private CheckBox mBoldCheckBox;
 
-    private ImageButton mBackgroundImage;
+    private Switch mShadowSwitch;
 
-    private ImageButton mTextColor;
+    private ImageButton mBackgroundColorButton;
+
+    private ImageButton mBackgroundImageButton;
+
+    private ImageButton mTextColorButton;
+
+    private ImageButton mPositionButton;
 
     private static Asset createAssetFromBitmap(Bitmap bitmap) {
         final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
@@ -102,20 +118,24 @@ public class MainActivity extends WearApiActivity
 
         mTextPreview = (TextView) findViewById(R.id.text_preview);
 
-        mBackgroundColor = (ImageButton) findViewById(R.id.bt_background_color);
-        mBackgroundColor.setOnClickListener(new View.OnClickListener() {
+        mBackgroundColorButton = (ImageButton) findViewById(R.id.bt_background_color);
+        mBackgroundColorButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Adding an onClickListener to an ImageButton forces the clickable state to always
+                // be true, even if the view is disabled
                 if (v.isEnabled()) {
                     showColorPicker(DIALOG_BACKGROUND_COLOR_PICKER_TAG);
                 }
             }
         });
 
-        mBackgroundImage = (ImageButton) findViewById(R.id.bt_background_image);
-        mBackgroundImage.setOnClickListener(new View.OnClickListener() {
+        mBackgroundImageButton = (ImageButton) findViewById(R.id.bt_background_image);
+        mBackgroundImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Adding an onClickListener to an ImageButton forces the clickable state to always
+                // be true, even if the view is disabled
                 if (v.isEnabled()) {
                     Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                     intent.setType("image/*");
@@ -124,8 +144,8 @@ public class MainActivity extends WearApiActivity
             }
         });
 
-        mTextColor = (ImageButton) findViewById(R.id.bt_text_color);
-        mTextColor.setOnClickListener(new View.OnClickListener() {
+        mTextColorButton = (ImageButton) findViewById(R.id.bt_text_color);
+        mTextColorButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Adding an onClickListener to an ImageButton forces the clickable state to always
@@ -136,30 +156,121 @@ public class MainActivity extends WearApiActivity
             }
         });
 
-        mItalic = (CheckBox) findViewById(R.id.cb_italic);
-        mBold = (CheckBox) findViewById(R.id.cb_bold);
+        mTextSizeSpinner = (Spinner) findViewById(R.id.sp_size);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter
+                .createFromResource(this, R.array.text_sizes, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mTextSizeSpinner.setAdapter(adapter);
 
-        mShadow = (Switch) findViewById(R.id.sw_shadow);
+        mItalicCheckBox = (CheckBox) findViewById(R.id.cb_italic);
+        mBoldCheckBox = (CheckBox) findViewById(R.id.cb_bold);
+
+        mShadowSwitch = (Switch) findViewById(R.id.sw_shadow);
+
+        mPositionButton = (ImageButton) findViewById(R.id.bt_position);
+        mPositionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Adding an onClickListener to an ImageButton forces the clickable state to always
+                // be true, even if the view is disabled
+                if (v.isEnabled()) {
+                    PositionPickerDialogFragment fragment = PositionPickerDialogFragment
+                            .newInstance();
+                    fragment.show(getFragmentManager(), DIALOG_POSITION_PICKER_TAG);
+                }
+            }
+        });
+
+        mTextCaseSpinner = (Spinner) findViewById(R.id.sp_caps);
+        adapter = ArrayAdapter.createFromResource(this, R.array.text_caps,
+                android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mTextCaseSpinner.setAdapter(adapter);
 
         initWithStoredValues();
 
         setElementsEnabled(false);
 
+        // Set some of the listeners after setting the restored values to prevent their side calls
+
+        mTextSizeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                float textSize;
+                switch (position) {
+                    case 0:
+                        textSize = Constants.TEXT_SIZE_LARGE;
+                        break;
+                    case 1:
+                        textSize = Constants.TEXT_SIZE_MEDIUM;
+                        break;
+                    case 2:
+                        textSize = Constants.TEXT_SIZE_SMALL;
+                        break;
+                    case 3:
+                        textSize = Constants.TEXT_SIZE_EXTRA_SMALL;
+                        break;
+                    default:
+                        textSize = Constants.TEXT_SIZE_LARGE;
+                        break;
+                }
+                storePreference(Constants.TEXT_SIZE_KEY, textSize);
+                syncData(Constants.TEXT_SIZE_PATH, Constants.TEXT_SIZE_KEY, textSize);
+                loadTextSizePreview();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
         CompoundButton.OnCheckedChangeListener checkedListener
                 = new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                setTextStyle(mBold.isChecked(), mItalic.isChecked(), true);
+                boolean bold = mBoldCheckBox.isChecked();
+                boolean italic = mItalicCheckBox.isChecked();
+                int style;
+                if (bold && italic) {
+                    style = Constants.TEXT_STYLE_BOLD_ITALIC;
+                } else if (bold) {
+                    style = Constants.TEXT_STYLE_BOLD;
+                } else if (italic) {
+                    style = Constants.TEXT_STYLE_ITALIC;
+                } else {
+                    style = Constants.TEXT_STYLE_NORMAL;
+                }
+                storePreference(Constants.TEXT_STYLE_KEY, style);
+                syncData(Constants.TEXT_STYLE_PATH, Constants.TEXT_STYLE_KEY, style);
+                loadTextStylePreview();
             }
         };
 
-        mItalic.setOnCheckedChangeListener(checkedListener);
-        mBold.setOnCheckedChangeListener(checkedListener);
+        mItalicCheckBox.setOnCheckedChangeListener(checkedListener);
+        mBoldCheckBox.setOnCheckedChangeListener(checkedListener);
 
-        mShadow.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        mShadowSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                setTextShadow(isChecked, true);
+                storePreference(Constants.TEXT_SHADOW_KEY, isChecked);
+                syncData(Constants.TEXT_SHADOW_PATH, Constants.TEXT_SHADOW_KEY, isChecked);
+                loadTextShadowPreview();
+            }
+        });
+
+        mTextCaseSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                // The position matches the fields in Constants
+                storePreference(Constants.TEXT_CASE_KEY, position);
+                syncData(Constants.TEXT_CASE_PATH, Constants.TEXT_CASE_KEY, position);
+                loadTextCasePreview();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
             }
         });
     }
@@ -169,22 +280,22 @@ public class MainActivity extends WearApiActivity
         if (resultCode == RESULT_OK) {
             Uri imageUri = data.getData();
             switch (requestCode) {
-                case REQUEST_PICK_IMAGE: // Open the image picker
+                case REQUEST_PICK_IMAGE: // An image has been picked, open the cropper
                     Intent intent = new Intent(this, ImageCropperActivity.class);
                     intent.setData(imageUri);
                     startActivityForResult(intent, REQUEST_CROP_IMAGE);
                     break;
-                case REQUEST_CROP_IMAGE: // The image has been picked, open the cropper
+                case REQUEST_CROP_IMAGE: // The image has been cropped, open the cropper
                     InputStream inputStream;
                     try {
                         inputStream = getContentResolver().openInputStream(imageUri);
-                        BitmapDrawable drawable = new BitmapDrawable(getResources(), inputStream);
-                        mTextPreview.setBackground(drawable);
-                        mSharedPreferences.edit().putInt(Constants.BACKGROUND_TYPE_KEY,
-                                Constants.BACKGROUND_TYPE_IMAGE).apply();
-                        putData(Constants.BACKGROUND_ASSET_PATH, Constants.BACKGROUND_ASSET_KEY,
-                                createAssetFromBitmap(drawable.getBitmap()));
+                        Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                        storePreference(Constants.BACKGROUND_TYPE_KEY,
+                                Constants.BACKGROUND_TYPE_IMAGE);
+                        syncData(Constants.BACKGROUND_ASSET_PATH, Constants.BACKGROUND_ASSET_KEY,
+                                createAssetFromBitmap(bitmap));
                         deleteData(Constants.BACKGROUND_COLOR_PATH);
+                        loadBackgroundPreview();
                     } catch (FileNotFoundException e) {
                         Log.w("Human Time",
                                 "The background file was created, but it can't be found");
@@ -216,12 +327,15 @@ public class MainActivity extends WearApiActivity
      * @param enabled true if the views should be enabled, false otherwise
      */
     private void setElementsEnabled(boolean enabled) {
-        setImageButtonEnabled(mBackgroundColor, enabled);
-        setImageButtonEnabled(mBackgroundImage, enabled);
-        setImageButtonEnabled(mTextColor, enabled);
-        mItalic.setEnabled(enabled);
-        mBold.setEnabled(enabled);
-        mShadow.setEnabled(enabled);
+        setImageButtonEnabled(mBackgroundColorButton, enabled);
+        setImageButtonEnabled(mBackgroundImageButton, enabled);
+        setImageButtonEnabled(mTextColorButton, enabled);
+        setImageButtonEnabled(mPositionButton, enabled);
+        mTextSizeSpinner.setEnabled(enabled);
+        mItalicCheckBox.setEnabled(enabled);
+        mBoldCheckBox.setEnabled(enabled);
+        mShadowSwitch.setEnabled(enabled);
+        mTextCaseSpinner.setEnabled(enabled);
     }
 
     /**
@@ -248,6 +362,65 @@ public class MainActivity extends WearApiActivity
      * retrieving the values stored.
      */
     private void initWithStoredValues() {
+        loadBackgroundPreview();
+        loadTextCasePreview();
+        loadTextColorPreview();
+        loadTextPositionPreview();
+        loadTextShadowPreview();
+        loadTextSizePreview();
+        loadTextStylePreview();
+    }
+
+    private void storePreference(String key, Object value) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        if (Constants.BACKGROUND_TYPE_KEY.equals(key)
+                || Constants.BACKGROUND_COLOR_KEY.equals(key)
+                || Constants.TEXT_CASE_KEY.equals(key)
+                || Constants.TEXT_COLOR_KEY.equals(key)
+                || Constants.TEXT_POSITION_KEY.equals(key)
+                || Constants.TEXT_STYLE_KEY.equals(key)) {
+            editor.putInt(key, (Integer) value);
+        } else if (Constants.BACKGROUND_ASSET_LAST_CHANGED_KEY.equals(key)) {
+            editor.putLong(key, (Long) value);
+        } else if (Constants.TEXT_SHADOW_KEY.equals(key)) {
+            editor.putBoolean(key, (Boolean) value);
+        } else if (Constants.TEXT_SIZE_KEY.equals(key)) {
+            editor.putFloat(key, (Float) value);
+        }
+        editor.apply();
+    }
+
+    /**
+     * Syncs a key/value pair at the given path inside Google Play services Wearable Data Layer.
+     *
+     * @param path  the path where tha data will be stored
+     * @param key   the key referencing the data
+     * @param value the value of the data
+     */
+    private void syncData(String path, String key, Object value) {
+        PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(path);
+        DataMap dataMap = putDataMapRequest.getDataMap();
+        if (value instanceof Integer) {
+            dataMap.putInt(key, (Integer) value);
+        } else if (value instanceof Boolean) {
+            dataMap.putBoolean(key, (Boolean) value);
+        } else if (value instanceof Asset) {
+            dataMap.putAsset(key, (Asset) value);
+        } else if (value instanceof Float) {
+            dataMap.putFloat(key, (Float) value);
+        } else {
+            throw new IllegalArgumentException("Invalid value: " + value);
+        }
+        PutDataRequest request = putDataMapRequest.asPutDataRequest();
+        Wearable.DataApi.putDataItem(getGoogleApiClient(), request);
+    }
+
+    private void deleteData(String path) {
+        PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(path);
+        Wearable.DataApi.deleteDataItems(getGoogleApiClient(), putDataMapRequest.getUri());
+    }
+
+    private void loadBackgroundPreview() {
         int backgroundType = mSharedPreferences
                 .getInt(Constants.BACKGROUND_TYPE_KEY, Constants.BACKGROUND_TYPE_COLOR);
         Drawable drawable = null;
@@ -267,39 +440,116 @@ public class MainActivity extends WearApiActivity
             }
         }
         mTextPreview.setBackground(drawable);
+    }
 
-        color = mSharedPreferences.getInt(Constants.TEXT_COLOR_KEY, Color.WHITE);
-        mTextPreview.setTextColor(color);
+    private void loadTextCasePreview() {
+        int textCase = mSharedPreferences
+                .getInt(Constants.TEXT_CASE_KEY, Constants.TEXT_CASE_NO_CAPS);
+        String newText = getString(R.string.sample_time);
+        switch (textCase) {
+            case Constants.TEXT_CASE_NO_CAPS:
+                break;
+            case Constants.TEXT_CASE_ALL_CAPS:
+                newText = newText.toUpperCase();
+                break;
+            case Constants.TEXT_CASE_FIRST_CAP:
+                newText = newText.substring(0, 1).toUpperCase() + newText.substring(1);
+                break;
+        }
+        mTextPreview.setText(newText);
+    }
 
+    private void loadTextColorPreview() {
+        int textColor = mSharedPreferences.getInt(Constants.TEXT_COLOR_KEY, Color.WHITE);
+        mTextPreview.setTextColor(textColor);
+    }
+
+    private void loadTextPositionPreview() {
+        int textPosition = mSharedPreferences.getInt(Constants.TEXT_POSITION_KEY,
+                Constants.TEXT_POSITION_CENTER_CENTER);
+        int gravity;
+        switch (textPosition) {
+            case Constants.TEXT_POSITION_TOP_LEFT:
+                gravity = Gravity.TOP | Gravity.LEFT;
+                break;
+            case Constants.TEXT_POSITION_TOP_CENTER:
+                gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
+                break;
+            case Constants.TEXT_POSITION_TOP_RIGHT:
+                gravity = Gravity.TOP | Gravity.RIGHT;
+                break;
+            case Constants.TEXT_POSITION_CENTER_LEFT:
+                gravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
+                break;
+            case Constants.TEXT_POSITION_CENTER_CENTER:
+                gravity = Gravity.CENTER;
+                break;
+            case Constants.TEXT_POSITION_CENTER_RIGHT:
+                gravity = Gravity.CENTER_VERTICAL | Gravity.RIGHT;
+                break;
+            case Constants.TEXT_POSITION_BOTTOM_LEFT:
+                gravity = Gravity.BOTTOM | Gravity.LEFT;
+                break;
+            case Constants.TEXT_POSITION_BOTTOM_CENTER:
+                gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
+                break;
+            case Constants.TEXT_POSITION_BOTTOM_RIGHT:
+                gravity = Gravity.BOTTOM | Gravity.RIGHT;
+                break;
+            default:
+                gravity = Gravity.CENTER;
+                break;
+        }
+        mTextPreview.setGravity(gravity);
+        LevelListDrawable levelListDrawable = (LevelListDrawable) mPositionButton.getDrawable();
+        // The position matches the order in the LevelListDrawable
+        levelListDrawable.setLevel(textPosition);
+    }
+
+    private void loadTextShadowPreview() {
+        boolean showShadow = mSharedPreferences.getBoolean(Constants.TEXT_SHADOW_KEY, true);
+        if (showShadow) {
+            mTextPreview.setShadowLayer(3.0F, 3.0F, 3.0F, Color.BLACK);
+        } else {
+            mTextPreview.setShadowLayer(0.0F, 0.0F, 0.0F, Color.BLACK);
+        }
+    }
+
+    private void loadTextSizePreview() {
+        float textSize = mSharedPreferences
+                .getFloat(Constants.TEXT_SIZE_KEY, Constants.TEXT_SIZE_LARGE);
+        mTextPreview.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
+    }
+
+    private void loadTextStylePreview() {
         int textStyle = mSharedPreferences
                 .getInt(Constants.TEXT_STYLE_KEY, Constants.TEXT_STYLE_BOLD);
         boolean bold;
         boolean italic;
         switch (textStyle) {
             case Constants.TEXT_STYLE_BOLD_ITALIC:
+                mTextPreview.setTypeface(Typeface.DEFAULT, Typeface.BOLD_ITALIC);
                 bold = true;
                 italic = true;
                 break;
             case Constants.TEXT_STYLE_BOLD:
+                mTextPreview.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
                 bold = true;
                 italic = false;
                 break;
             case Constants.TEXT_STYLE_ITALIC:
+                mTextPreview.setTypeface(Typeface.DEFAULT, Typeface.ITALIC);
                 bold = false;
                 italic = true;
                 break;
             default:
+                mTextPreview.setTypeface(Typeface.DEFAULT, Typeface.NORMAL);
                 bold = false;
                 italic = false;
                 break;
         }
-        setTextStyle(bold, italic, false);
-        mBold.setChecked(bold);
-        mItalic.setChecked(italic);
-
-        boolean textShadow = mSharedPreferences.getBoolean(Constants.TEXT_SHADOW_KEY, true);
-        setTextShadow(textShadow, false);
-        mShadow.setChecked(textShadow);
+        mBoldCheckBox.setChecked(bold);
+        mItalicCheckBox.setChecked(italic);
     }
 
     /**
@@ -317,57 +567,6 @@ public class MainActivity extends WearApiActivity
         }
         ColorPickerDialogFragment fragment = ColorPickerDialogFragment.newInstance(oldColor);
         fragment.show(getFragmentManager(), tag);
-    }
-
-    /**
-     * Sets the text style that should be applied both in the preview watch face and syncing the
-     * data with the Wearable Data Layer.
-     *
-     * @param bold    true if the text should be displayed using a bold typeface, false otherwise
-     * @param italic  true if the text should be displayed using an italic typeface, false
-     *                otherwise
-     * @param putData true if the action should be synced with the Wearable Data Layer, false
-     *                otherwise
-     */
-    private void setTextStyle(boolean bold, boolean italic, boolean putData) {
-        String path = Constants.TEXT_STYLE_PATH;
-        String key = Constants.TEXT_STYLE_KEY;
-        int style;
-        if (bold && italic) {
-            mTextPreview.setTypeface(Typeface.DEFAULT, Typeface.BOLD_ITALIC);
-            style = Constants.TEXT_STYLE_BOLD_ITALIC;
-        } else if (bold) {
-            mTextPreview.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
-            style = Constants.TEXT_STYLE_BOLD;
-        } else if (italic) {
-            mTextPreview.setTypeface(Typeface.DEFAULT, Typeface.ITALIC);
-            style = Constants.TEXT_STYLE_ITALIC;
-        } else {
-            mTextPreview.setTypeface(Typeface.DEFAULT, Typeface.NORMAL);
-            style = Constants.TEXT_STYLE_NORMAL;
-        }
-        if (putData) {
-            putData(path, key, style);
-        }
-    }
-
-    /**
-     * Sets the enabled state of the text shadow, both in the preview watch face and syncing the
-     * data with the Wearable Data Layer.
-     *
-     * @param enableShadow true if the shadow is enabled, false otherwise
-     * @param putData      true if the action should be synced with the Wearable Data Layer, false
-     *                     otherwise
-     */
-    private void setTextShadow(boolean enableShadow, boolean putData) {
-        if (enableShadow) {
-            mTextPreview.setShadowLayer(3.0F, 3.0F, 3.0F, Color.BLACK);
-        } else {
-            mTextPreview.setShadowLayer(0.0F, 0.0F, 0.0F, Color.BLACK);
-        }
-        if (putData) {
-            putData(Constants.TEXT_SHADOW_PATH, Constants.TEXT_SHADOW_KEY, enableShadow);
-        }
     }
 
     @Override
@@ -396,50 +595,22 @@ public class MainActivity extends WearApiActivity
     public void onColorPicked(DialogFragment dialog, int color) {
         String tag = dialog.getTag();
         if (DIALOG_BACKGROUND_COLOR_PICKER_TAG.equals(tag)) {
-            mSharedPreferences.edit().putInt(Constants.BACKGROUND_TYPE_KEY,
-                    Constants.BACKGROUND_TYPE_COLOR).apply();
-            mTextPreview.setBackgroundColor(color);
-            putData(Constants.BACKGROUND_COLOR_PATH, Constants.BACKGROUND_COLOR_KEY, color);
+            storePreference(Constants.BACKGROUND_TYPE_KEY, Constants.BACKGROUND_TYPE_COLOR);
+            storePreference(Constants.BACKGROUND_COLOR_KEY, color);
+            syncData(Constants.BACKGROUND_COLOR_PATH, Constants.BACKGROUND_COLOR_KEY, color);
             deleteData(Constants.BACKGROUND_ASSET_PATH);
+            loadBackgroundPreview();
         } else if (DIALOG_TEXT_COLOR_PICKER_TAG.equals(tag)) {
-            mTextPreview.setTextColor(color);
-            putData(Constants.TEXT_COLOR_PATH, Constants.TEXT_COLOR_KEY, color);
+            storePreference(Constants.TEXT_COLOR_KEY, color);
+            syncData(Constants.TEXT_COLOR_PATH, Constants.TEXT_COLOR_KEY, color);
+            loadTextColorPreview();
         }
     }
 
-    /**
-     * Puts a key/value pair at the given path inside Google Play services Wearable Data Layer and
-     * stores it in the app shared preferences.
-     *
-     * @param path  the path where tha data will be stored
-     * @param key   the key referencing the data
-     * @param value the value of the data
-     */
-    private void putData(String path, String key, Object value) {
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
-        PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(path);
-        DataMap dataMap = putDataMapRequest.getDataMap();
-        if (value instanceof Integer) {
-            int casted = (Integer) value;
-            dataMap.putInt(key, casted);
-            editor.putInt(key, casted);
-        } else if (value instanceof Boolean) {
-            boolean casted = (Boolean) value;
-            dataMap.putBoolean(key, casted);
-            editor.putBoolean(key, casted);
-        } else if (value instanceof Asset) {
-            dataMap.putAsset(key, (Asset) value);
-            editor.putLong(key, System.currentTimeMillis());
-        } else {
-            throw new IllegalArgumentException("Invalid value: " + value);
-        }
-        editor.apply();
-        PutDataRequest request = putDataMapRequest.asPutDataRequest();
-        Wearable.DataApi.putDataItem(getGoogleApiClient(), request);
-    }
-
-    private void deleteData(String path) {
-        PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(path);
-        Wearable.DataApi.deleteDataItems(getGoogleApiClient(), putDataMapRequest.getUri());
+    @Override
+    public void onPositionPicked(DialogFragment dialog, int position) {
+        storePreference(Constants.TEXT_POSITION_KEY, position);
+        syncData(Constants.TEXT_POSITION_PATH, Constants.TEXT_POSITION_KEY, position);
+        loadTextPositionPreview();
     }
 }

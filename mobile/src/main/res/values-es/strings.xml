@@ -6,12 +6,27 @@
     <string name="value">Valor</string>
     <string name="title_activity_main">Ajustes de Human Time</string>
     <string name="title_activity_image_cropper">Redimensionar imagen</string>
-    <string name="sample_time">doce\ny\nmedia</string>
     <string name="background">Fondo</string>
     <string name="text">Texto</string>
     <string name="style">Estilo</string>
     <string name="shadow">Sombra</string>
     <string name="bold">Negrita</string>
     <string name="italic">Cursiva</string>
+    <string name="size">Tamaño</string>
+    <string name="position">Posición</string>
+    <string name="caps">Mayúsculas</string>
+
+    <string-array name="text_sizes">
+        <item>Grande</item>
+        <item>Mediano</item>
+        <item>Pequeño</item>
+        <item>Extra pequeño</item>
+    </string-array>
+
+    <string-array name="text_caps">
+        <item>ninguna</item>
+        <item>TODAS</item>
+        <item>Primera</item>
+    </string-array>
 
 </resources>

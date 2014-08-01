@@ -13,10 +13,14 @@ android {
         applicationId "net.zhdev.wear.humantime"
         minSdkVersion 20
         targetSdkVersion 20
-        versionCode 1
-        versionName "1.0"
+        versionCode 1100
+        versionName "1.1"
     }
     buildTypes {
+        debug {
+            applicationIdSuffix '.debug'
+            versionNameSuffix '-DEBUG'
+        }
         release {
             signingConfig signingConfigs.release
             runProguard true

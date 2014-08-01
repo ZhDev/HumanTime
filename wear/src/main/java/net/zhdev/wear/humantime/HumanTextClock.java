@@ -16,19 +16,17 @@
 
 package net.zhdev.wear.humantime;
 
-import com.squareup.phrase.Phrase;
+import net.zhdev.humantime.shared.Constants;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.res.Resources;
 import android.util.AttributeSet;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
 import java.util.Calendar;
-import java.util.Locale;
 import java.util.TimeZone;
 
 import me.grantland.widget.AutofitTextView;
@@ -68,6 +66,10 @@ public class HumanTextClock extends AutofitTextView {
             onTimeChanged();
         }
     };
+
+    private TimeConverter mTimeConverter;
+
+    private int mTextCase;
 
     /**
      * Creates a new clock using the default patterns for the current locale.
@@ -113,13 +115,6 @@ public class HumanTextClock extends AutofitTextView {
         init(context);
     }
 
-    private static int roundToNearestMultipleOfFive(int number) {
-        int temp = number % 5;
-        int floor = number - temp;
-
-        return temp < 3 ? floor : floor + 5;
-    }
-
     private void init(Context context) {
         // The View doesn't work well in edit mode, it's better to use tools:text in the layout
         // editor
@@ -127,6 +122,7 @@ public class HumanTextClock extends AutofitTextView {
             return;
         }
         setText("");
+        mTimeConverter = new TimeConverter(context.getResources());
         mCurrentText = "";
         mAnimationIn = AnimationUtils.loadAnimation(context, R.anim.push_in_right);
         mAnimationOut = AnimationUtils.loadAnimation(context, R.anim.push_out_left);
@@ -147,6 +143,7 @@ public class HumanTextClock extends AutofitTextView {
 
             }
         });
+        mTextCase = Constants.TEXT_CASE_NO_CAPS;
         createTime(mTimeZone);
     }
 
@@ -236,46 +233,22 @@ public class HumanTextClock extends AutofitTextView {
      */
     private void onTimeChanged() {
         mTime.setTimeInMillis(System.currentTimeMillis());
-        String time = null;
-        int hours = mTime.get(Calendar.HOUR);
-        int minutes = roundToNearestMultipleOfFive(mTime.get(Calendar.MINUTE));
 
-        if (minutes > 30) {
-            hours = (hours % 12) + 1;
-            if (minutes == 60) {
-                minutes = 0;
-            }
-        }
-
-        if (hours == 0) {
-            hours = 12;
-        }
-
-        Phrase phrase = null;
-
-        if (minutes == 0) {
-            phrase = Phrase.from(getResources(), R.string.o_clock);
-        } else if (minutes == 15) {
-            phrase = Phrase.from(getResources(), R.string.quarter_past);
-        } else if (minutes == 30) {
-            if (getResources().getConfiguration().locale.equals(Locale.GERMAN)) {
-                hours++;
-            }
-            phrase = Phrase.from(getResources(), R.string.half_past);
-        } else if (minutes == 45) {
-            phrase = Phrase.from(getResources(), R.string.quarter_to);
-        } else if (minutes < 30) {
-            phrase = Phrase.from(getResources(), R.string.any_past);
-        } else {
-            minutes = 60 - minutes;
-            phrase = Phrase.from(getResources(), R.string.any_to);
-        }
-
-        time = phrase.put("hours", getHoursText(hours))
-                .putOptional("minutes", getMinutesText(minutes))
-                .format()
-                .toString()
+        String time = mTimeConverter
+                .convertTime(mTime.get(Calendar.HOUR), mTime.get(Calendar.MINUTE))
                 .replace(' ', '\n');
+
+        // We assume that the time patterns in strings.xml are always in lowercase
+        switch (mTextCase) {
+            case Constants.TEXT_CASE_NO_CAPS:
+                break;
+            case Constants.TEXT_CASE_ALL_CAPS:
+                time = time.toUpperCase();
+                break;
+            case Constants.TEXT_CASE_FIRST_CAP:
+                time = time.substring(0, 1).toUpperCase() + time.substring(1);
+                break;
+        }
 
         setTime(time);
     }
@@ -293,66 +266,13 @@ public class HumanTextClock extends AutofitTextView {
         }
     }
 
-    private String getHoursText(int hours) {
-        Resources res = getResources();
-        String text = null;
-        switch (hours) {
-            case 1:
-                text = res.getString(R.string.one);
-                break;
-            case 2:
-                text = res.getString(R.string.two);
-                break;
-            case 3:
-                text = res.getString(R.string.three);
-                break;
-            case 4:
-                text = res.getString(R.string.four);
-                break;
-            case 5:
-                text = res.getString(R.string.five);
-                break;
-            case 6:
-                text = res.getString(R.string.six);
-                break;
-            case 7:
-                text = res.getString(R.string.seven);
-                break;
-            case 8:
-                text = res.getString(R.string.eight);
-                break;
-            case 9:
-                text = res.getString(R.string.nine);
-                break;
-            case 10:
-                text = res.getString(R.string.ten);
-                break;
-            case 11:
-                text = res.getString(R.string.eleven);
-                break;
-            case 12:
-                text = res.getString(R.string.twelve);
-                break;
-        }
-        if (isInEditMode()) {
-            return text;
-        }
-        return res.getQuantityString(R.plurals.hours, hours, text);
-    }
-
-    private String getMinutesText(int minutes) {
-        Resources res = getResources();
-        switch (minutes) {
-            case 5:
-                return res.getString(R.string.five);
-            case 10:
-                return res.getString(R.string.ten);
-            case 20:
-                return res.getString(R.string.twenty);
-            case 25:
-                return res.getString(R.string.twenty_five);
-            default:
-                return res.getString(R.string.nan);
+    /**
+     * @see net.zhdev.humantime.shared.Constants
+     */
+    public void setTextCase(int textCase) {
+        mTextCase = textCase;
+        if (mAttached) {
+            onTimeChanged();
         }
     }
 }

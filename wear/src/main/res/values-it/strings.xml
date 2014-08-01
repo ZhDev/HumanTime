@@ -1,5 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2014 Julio García Muñoz (ZhDev)
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
 <resources>
+
+    <!-- The time MUST contain at most 2 spaces so it can be broken later into 2 or 3 sentences.
+    Use '\u00A0' instead to insert non-breaking spaces in numbers and extra spaces in the sentences.
+    It should look like <hours> + space + <time_construction> + space + <minutes>, where <hours>,
+    <time_construction> and <minutes> don't contain any spaces, only '\u00A0'.-->
 
     <string name="one">una</string>
     <string name="two">due</string>
@@ -13,16 +34,18 @@
     <string name="ten">dieci</string>
     <string name="eleven">undici</string>
     <string name="twelve">dodici</string>
-    <string name="twenty">venti</string>
-    <string name="twenty_five">venticinque</string>
 
     <string name="o_clock">{hours}</string>
+    <string name="five_past">{hours} e cinque</string>
+    <string name="ten_past">{hours} e dieci</string>
     <string name="quarter_past">{hours} e\u00A0un quarto</string>
+    <string name="twenty_past">{hours} e venti</string>
+    <string name="twenty_five_past">{hours} e venticinque</string>
     <string name="half_past">{hours} e mezzo</string>
+    <string name="twenty_five_to">{hours} meno venticinque</string>
+    <string name="twenty_to">{hours} meno venti</string>
     <string name="quarter_to">{hours} meno\u00A0un quarto</string>
-    <string name="any_past">{hours} e {minutes}</string>
-    <string name="any_to">{hours} meno {minutes}</string>
-
-    <string name="sample_time">undici\nmeno\nventicinque</string>
+    <string name="ten_to">{hours} meno dieci</string>
+    <string name="five_to">{hours} meno cinque</string>
 
 </resources>

@@ -98,6 +98,15 @@ public class DataLayerListenerService extends WearableListenerService {
                 } else if (Constants.TEXT_SHADOW_PATH.equals(uriPath)) {
                     boolean showShadow = dataMap.getBoolean(Constants.TEXT_SHADOW_KEY);
                     editor.putBoolean(Constants.TEXT_SHADOW_KEY, showShadow);
+                } else if (Constants.TEXT_SIZE_PATH.equals(uriPath)) {
+                    float size = dataMap.getFloat(Constants.TEXT_SIZE_KEY);
+                    editor.putFloat(Constants.TEXT_SIZE_KEY, size);
+                } else if (Constants.TEXT_POSITION_PATH.equals(uriPath)) {
+                    int position = dataMap.getInt(Constants.TEXT_POSITION_KEY);
+                    editor.putInt(Constants.TEXT_POSITION_KEY, position);
+                } else if (Constants.TEXT_CASE_PATH.equals(uriPath)) {
+                    int textCase = dataMap.getInt(Constants.TEXT_CASE_KEY);
+                    editor.putInt(Constants.TEXT_CASE_KEY, textCase);
                 }
 
                 editor.apply();
@@ -107,7 +116,7 @@ public class DataLayerListenerService extends WearableListenerService {
 
 
     /**
-     * Saves into persistent memory an asset put into the Wear Data Layer
+     * Saves into persistent memory an asset existing in the Wear Data Layer
      *
      * @param asset the <code>Asset</code> that will be saves into a file
      * @return true if the asset was correctly retrieved and stored, false otherwise

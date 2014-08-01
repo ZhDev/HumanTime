@@ -21,20 +21,21 @@ import net.zhdev.humantime.shared.Constants;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.hardware.display.DisplayManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
+import android.util.TypedValue;
 import android.view.Display;
+import android.view.Gravity;
 import android.widget.FrameLayout;
 
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 /**
  * <p><code>WatchFaceActivity</code> implements the UI for a watch face that shows the time in a
@@ -90,52 +91,13 @@ public class WatchFaceActivity extends Activity implements DisplayManager.Displa
      */
     private void loadSavedValues() {
         SharedPreferences preferences = getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE);
-
-        int backgroundType = preferences
-                .getInt(Constants.BACKGROUND_TYPE_KEY, Constants.BACKGROUND_TYPE_COLOR);
-        if (backgroundType == Constants.BACKGROUND_TYPE_COLOR) {
-            int color = preferences.getInt(Constants.BACKGROUND_COLOR_KEY,
-                    getResources().getColor(android.R.color.holo_blue_dark));
-            mWatchView.setBackground(new ColorDrawable(color));
-        } else {
-            Bitmap bitmap;
-            try {
-                bitmap = BitmapFactory
-                        .decodeStream(openFileInput(Constants.BACKGROUND_ASSET_FILE_NAME));
-                mWatchView.setBackground(new BitmapDrawable(getResources(), bitmap));
-            } catch (FileNotFoundException e) {
-                mWatchView.setBackgroundColor(Color.WHITE);
-            }
-        }
-
-        int textColor = preferences.getInt(Constants.TEXT_COLOR_KEY, Color.WHITE);
-        mWatchText.setTextColor(textColor);
-
-        int textStyle = preferences.getInt(Constants.TEXT_STYLE_KEY, Constants.TEXT_STYLE_BOLD);
-        switch (textStyle) {
-            case Constants.TEXT_STYLE_NORMAL:
-                mWatchText.setTypeface(Typeface.DEFAULT, Typeface.NORMAL);
-                break;
-            case Constants.TEXT_STYLE_BOLD:
-                mWatchText.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
-                break;
-            case Constants.TEXT_STYLE_ITALIC:
-                mWatchText.setTypeface(Typeface.DEFAULT, Typeface.ITALIC);
-                break;
-            case Constants.TEXT_STYLE_BOLD_ITALIC:
-                mWatchText.setTypeface(Typeface.DEFAULT, Typeface.BOLD_ITALIC);
-                break;
-            default:
-                mWatchText.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
-                break;
-        }
-
-        boolean textShadow = preferences.getBoolean(Constants.TEXT_SHADOW_KEY, true);
-        if (textShadow) {
-            mWatchText.setShadowLayer(3.0F, 3.0F, 3.0F, Color.BLACK);
-        } else {
-            mWatchText.setShadowLayer(0.0F, 0.0F, 0.0F, Color.BLACK);
-        }
+        loadBackground(preferences);
+        loadTextCase(preferences);
+        loadTextColor(preferences);
+        loadTextPosition(preferences);
+        loadTextShadow(preferences);
+        loadTextSize(preferences);
+        loadTextStyle(preferences);
     }
 
     @Override
@@ -158,10 +120,9 @@ public class WatchFaceActivity extends Activity implements DisplayManager.Displa
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        mWatchView.setBackgroundColor(Color.BLACK);
+                        mWatchView.setBackground(new ColorDrawable(Color.BLACK));
                         mWatchText.setTextColor(Color.WHITE);
                         mWatchText.setShadowLayer(0.0F, 0.0F, 0.0F, Color.BLACK);
-                        mWatchText.setTypeface(Typeface.DEFAULT, Typeface.NORMAL);
                     }
                 });
                 mDisplayDimmed = true;
@@ -185,49 +146,130 @@ public class WatchFaceActivity extends Activity implements DisplayManager.Displa
         /*
         This method is used to listen for changes coming from the DataLayerListenerService. Since
         the values have to be stored anyways to be used every time the screen wakes up, setting up a
-        listener for SharedPreference changes avoids having to setup a separate callback from the
-        service. The changes are retrieved and applied to every view.
+        listener for changes on SharedPreferences avoids having to setup a separate callback from
+        the service. The changes are retrieved and applied to every view.
          */
         if (!mDisplayDimmed) {
             if (Constants.BACKGROUND_COLOR_KEY.equals(key)) {
-                int color = sharedPreferences.getInt(Constants.BACKGROUND_COLOR_KEY, 0);
-                mWatchView.setBackground(new ColorDrawable(color));
+                loadBackground(sharedPreferences);
             } else if (Constants.BACKGROUND_ASSET_LAST_CHANGED_KEY.equals(key)) {
-                Bitmap bitmap;
-                try {
-                    bitmap = BitmapFactory
-                            .decodeStream(openFileInput(Constants.BACKGROUND_ASSET_FILE_NAME));
-                    mWatchView.setBackground(new BitmapDrawable(getResources(), bitmap));
-                } catch (FileNotFoundException e) {
-                    Log.d("HumanTime", "File not found");
-                }
+                loadBackground(sharedPreferences);
             } else if (Constants.TEXT_COLOR_KEY.equals(key)) {
-                int color = sharedPreferences.getInt(Constants.TEXT_COLOR_KEY, 0);
-                mWatchText.setTextColor(color);
+                loadTextColor(sharedPreferences);
             } else if (Constants.TEXT_STYLE_KEY.equals(key)) {
-                int style = sharedPreferences.getInt(Constants.TEXT_STYLE_KEY, 0);
-                switch (style) {
-                    case Constants.TEXT_STYLE_NORMAL:
-                        mWatchText.setTypeface(Typeface.DEFAULT, Typeface.NORMAL);
-                        break;
-                    case Constants.TEXT_STYLE_BOLD:
-                        mWatchText.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
-                        break;
-                    case Constants.TEXT_STYLE_ITALIC:
-                        mWatchText.setTypeface(Typeface.DEFAULT, Typeface.ITALIC);
-                        break;
-                    case Constants.TEXT_STYLE_BOLD_ITALIC:
-                        mWatchText.setTypeface(Typeface.DEFAULT, Typeface.BOLD_ITALIC);
-                        break;
-                }
+                loadTextStyle(sharedPreferences);
             } else if (Constants.TEXT_SHADOW_KEY.equals(key)) {
-                boolean showShadow = sharedPreferences.getBoolean(Constants.TEXT_SHADOW_KEY, true);
-                if (showShadow) {
-                    mWatchText.setShadowLayer(3.0F, 3.0F, 3.0F, Color.BLACK);
-                } else {
-                    mWatchText.setShadowLayer(0.0F, 0.0F, 0.0F, Color.BLACK);
-                }
+                loadTextShadow(sharedPreferences);
+            } else if (Constants.TEXT_SIZE_KEY.equals(key)) {
+                loadTextSize(sharedPreferences);
+            } else if (Constants.TEXT_POSITION_KEY.equals(key)) {
+                loadTextPosition(sharedPreferences);
+            } else if (Constants.TEXT_CASE_KEY.equals(key)) {
+                loadTextCase(sharedPreferences);
             }
+        }
+    }
+
+    private void loadBackground(SharedPreferences preferences) {
+        int backgroundType = preferences.getInt(Constants.BACKGROUND_TYPE_KEY,
+                Constants.BACKGROUND_TYPE_COLOR);
+        Drawable drawable = null;
+        int color;
+        if (backgroundType == Constants.BACKGROUND_TYPE_COLOR) {
+            color = preferences.getInt(Constants.BACKGROUND_COLOR_KEY,
+                    getResources().getColor(android.R.color.holo_blue_dark));
+            drawable = new ColorDrawable(color);
+        } else if (backgroundType == Constants.BACKGROUND_TYPE_IMAGE) {
+            try {
+                InputStream inputStream = openFileInput(Constants.BACKGROUND_ASSET_FILE_NAME);
+                drawable = new BitmapDrawable(getResources(), inputStream);
+            } catch (FileNotFoundException e) {
+                color = preferences.getInt(Constants.BACKGROUND_COLOR_KEY,
+                        getResources().getColor(android.R.color.holo_blue_dark));
+                drawable = new ColorDrawable(color);
+            }
+        }
+        mWatchView.setBackground(drawable);
+    }
+
+    private void loadTextCase(SharedPreferences preferences) {
+        int textCase = preferences.getInt(Constants.TEXT_CASE_KEY, Constants.TEXT_CASE_NO_CAPS);
+        mWatchText.setTextCase(textCase);
+    }
+
+    private void loadTextColor(SharedPreferences preferences) {
+        int textColor = preferences.getInt(Constants.TEXT_COLOR_KEY, Color.WHITE);
+        mWatchText.setTextColor(textColor);
+    }
+
+    private void loadTextPosition(SharedPreferences preferences) {
+        int textPosition = preferences.getInt(Constants.TEXT_POSITION_KEY,
+                Constants.TEXT_POSITION_CENTER_CENTER);
+        int gravity;
+        switch (textPosition) {
+            case Constants.TEXT_POSITION_TOP_LEFT:
+                gravity = Gravity.TOP | Gravity.LEFT;
+                break;
+            case Constants.TEXT_POSITION_TOP_CENTER:
+                gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
+                break;
+            case Constants.TEXT_POSITION_TOP_RIGHT:
+                gravity = Gravity.TOP | Gravity.RIGHT;
+                break;
+            case Constants.TEXT_POSITION_CENTER_LEFT:
+                gravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
+                break;
+            case Constants.TEXT_POSITION_CENTER_CENTER:
+                gravity = Gravity.CENTER;
+                break;
+            case Constants.TEXT_POSITION_CENTER_RIGHT:
+                gravity = Gravity.CENTER_VERTICAL | Gravity.RIGHT;
+                break;
+            case Constants.TEXT_POSITION_BOTTOM_LEFT:
+                gravity = Gravity.BOTTOM | Gravity.LEFT;
+                break;
+            case Constants.TEXT_POSITION_BOTTOM_CENTER:
+                gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
+                break;
+            case Constants.TEXT_POSITION_BOTTOM_RIGHT:
+                gravity = Gravity.BOTTOM | Gravity.RIGHT;
+                break;
+            default:
+                gravity = Gravity.CENTER;
+                break;
+        }
+        mWatchText.setGravity(gravity);
+    }
+
+    private void loadTextShadow(SharedPreferences preferences) {
+        boolean showShadow = preferences.getBoolean(Constants.TEXT_SHADOW_KEY, true);
+        if (showShadow) {
+            mWatchText.setShadowLayer(3.0F, 3.0F, 3.0F, Color.BLACK);
+        } else {
+            mWatchText.setShadowLayer(0.0F, 0.0F, 0.0F, Color.BLACK);
+        }
+    }
+
+    private void loadTextSize(SharedPreferences preferences) {
+        float textSize = preferences.getFloat(Constants.TEXT_SIZE_KEY, Constants.TEXT_SIZE_LARGE);
+        mWatchText.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
+    }
+
+    private void loadTextStyle(SharedPreferences preferences) {
+        int textStyle = preferences.getInt(Constants.TEXT_STYLE_KEY, Constants.TEXT_STYLE_BOLD);
+        switch (textStyle) {
+            case Constants.TEXT_STYLE_BOLD_ITALIC:
+                mWatchText.setTypeface(Typeface.DEFAULT, Typeface.BOLD_ITALIC);
+                break;
+            case Constants.TEXT_STYLE_BOLD:
+                mWatchText.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+                break;
+            case Constants.TEXT_STYLE_ITALIC:
+                mWatchText.setTypeface(Typeface.DEFAULT, Typeface.ITALIC);
+                break;
+            default:
+                mWatchText.setTypeface(Typeface.DEFAULT, Typeface.NORMAL);
+                break;
         }
     }
 }

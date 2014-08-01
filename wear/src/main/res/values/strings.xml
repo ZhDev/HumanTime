@@ -1,5 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2014 Julio García Muñoz (ZhDev)
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
 <resources>
+
+    <string name="app_name" translatable="false">Human Time</string>
+    <string name="nan" translatable="false">NaN</string>
+
+    <!-- The time MUST contain at most 2 spaces so it can be broken later into 2 or 3 sentences.
+    Use '\u00A0' instead to insert non-breaking spaces in numbers and extra spaces in the sentences.
+    It should look like <hours> + space + <time_construction> + space + <minutes>, where <hours>,
+    <time_construction> and <minutes> don't contain any spaces, only '\u00A0'.-->
 
     <string name="one">one</string>
     <string name="two">two</string>
@@ -13,8 +37,6 @@
     <string name="ten">ten</string>
     <string name="eleven">eleven</string>
     <string name="twelve">twelve</string>
-    <string name="twenty">twenty</string>
-    <string name="twenty_five">twenty-five</string>
 
     <plurals name="hours">
         <item quantity="one">%s</item>
@@ -22,12 +44,16 @@
     </plurals>
 
     <string name="o_clock">{hours} o\'clock</string>
+    <string name="five_past">five past {hours}</string>
+    <string name="ten_past">ten past {hours}</string>
     <string name="quarter_past">quarter past {hours}</string>
+    <string name="twenty_past">twenty past {hours}</string>
+    <string name="twenty_five_past">twenty-five past {hours}</string>
     <string name="half_past">half past {hours}</string>
+    <string name="twenty_five_to">twenty-five to {hours}</string>
+    <string name="twenty_to">twenty to {hours}</string>
     <string name="quarter_to">quarter to {hours}</string>
-    <string name="any_past">{minutes} past {hours}</string>
-    <string name="any_to">{minutes} to {hours}</string>
-
-    <string name="sample_time">twenty-five\npast\neleven</string>
+    <string name="ten_to">ten to {hours}</string>
+    <string name="five_to">five to {hours}</string>
 
 </resources>
