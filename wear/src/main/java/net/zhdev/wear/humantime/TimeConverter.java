@@ -75,6 +75,13 @@ public class TimeConverter {
             hours = (hours % 12) + 1;
         }
 
+        String textHours = getHoursText(hours);
+        // German time changes the word for the number 1 if it's o'clock
+        if (hours == 1 && minutes == 0
+                && mLocale.getLanguage().equals(Locale.GERMAN.getLanguage())) {
+            textHours = textHours.substring(0, textHours.length() - 1);
+        }
+
         Phrase phrase = null;
         switch (minutes) {
             case 0:
@@ -118,11 +125,11 @@ public class TimeConverter {
 
         }
 
-        return phrase.put("hours", getHoursText(hours)).format().toString();
+        return phrase.put("hours", textHours).format().toString();
     }
 
     private String getHoursText(int hours) {
-        String text = null;
+        String text;
         switch (hours) {
             case 1:
                 text = mResources.getString(R.string.one);
