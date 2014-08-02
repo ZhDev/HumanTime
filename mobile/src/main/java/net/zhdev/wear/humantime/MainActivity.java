@@ -412,6 +412,8 @@ public class MainActivity extends WearApiActivity
             editor.putBoolean(key, (Boolean) value);
         } else if (Constants.TEXT_SIZE_KEY.equals(key)) {
             editor.putFloat(key, (Float) value);
+        } else if (Constants.TEXT_FONT_KEY.equals(key)) {
+            editor.putString(key, (String) value);
         }
         editor.apply();
     }
@@ -581,7 +583,24 @@ public class MainActivity extends WearApiActivity
     }
 
     private void loadTextFontPreview() {
-        // TODO
+        String fontCode = mSharedPreferences.getString(Constants.TEXT_FONT_KEY, Font.DEFAULT.getFontCode());
+        Font font = Font.findFontByCode(fontCode);
+        Log.d("HumanTime", fontCode + " - " + font.toString());
+        if (!font.hasBoldVersion()){
+            mBoldCheckBox.setChecked(false);
+            mBoldCheckBox.setEnabled(false);
+        } else {
+            mBoldCheckBox.setEnabled(true);
+        }
+        if(!font.hasItalicVersion()){
+            mItalicCheckBox.setChecked(false);
+            mItalicCheckBox.setEnabled(false);
+        } else {
+            mItalicCheckBox.setEnabled(true);
+        }
+        int textStyle = mSharedPreferences.getInt(Constants.TEXT_STYLE_KEY,
+                Constants.TEXT_STYLE_NORMAL);
+        mTextPreview.setTypeface(font.getTypeface(this, textStyle));
     }
 
     /**

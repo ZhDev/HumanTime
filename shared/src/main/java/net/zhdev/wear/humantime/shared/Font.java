@@ -58,6 +58,20 @@ public final class Font {
         mHasBoldItalicVersion = hasBoldItalicVersion;
     }
 
+    public static Font findFontByCode(String code) {
+        if (CRAFTY_GIRLS.mFontCode.equals(code)) {
+            return CRAFTY_GIRLS;
+        } else if (DANCING_SCRIPT.mFontCode.equals(code)) {
+            return DANCING_SCRIPT;
+        } else if (LOBSTER_TWO.mFontCode.equals(code)) {
+            return LOBSTER_TWO;
+        } else if (PRESS_START_2P.mFontCode.equals(code)) {
+            return PRESS_START_2P;
+        } else {
+            return DEFAULT;
+        }
+    }
+
     public boolean hasBoldVersion() {
         return mHasBoldVersion;
     }
