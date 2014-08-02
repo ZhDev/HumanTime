@@ -50,7 +50,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.Spinner;
@@ -90,10 +89,6 @@ public class MainActivity extends WearApiActivity
 
     private Spinner mTextCaseSpinner;
 
-    private CheckBox mItalicCheckBox;
-
-    private CheckBox mBoldCheckBox;
-
     private Switch mShadowSwitch;
 
     private ImageButton mBackgroundColorButton;
@@ -105,6 +100,8 @@ public class MainActivity extends WearApiActivity
     private ImageButton mPositionButton;
 
     private Spinner mTextFontSpinner;
+
+    private Spinner mStyleSpinner;
 
     private static Asset createAssetFromBitmap(Bitmap bitmap) {
         final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
@@ -166,8 +163,11 @@ public class MainActivity extends WearApiActivity
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mTextSizeSpinner.setAdapter(adapter);
 
-        mItalicCheckBox = (CheckBox) findViewById(R.id.cb_italic);
-        mBoldCheckBox = (CheckBox) findViewById(R.id.cb_bold);
+        mStyleSpinner = (Spinner) findViewById(R.id.sp_style);
+        final StyleAdapter styleAdapter = new StyleAdapter(this,
+                android.R.layout.simple_spinner_item);
+        styleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mStyleSpinner.setAdapter(styleAdapter);
 
         mShadowSwitch = (Switch) findViewById(R.id.sw_shadow);
 
@@ -234,30 +234,20 @@ public class MainActivity extends WearApiActivity
             }
         });
 
-        CompoundButton.OnCheckedChangeListener checkedListener
-                = new CompoundButton.OnCheckedChangeListener() {
+        mStyleSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                boolean bold = mBoldCheckBox.isChecked();
-                boolean italic = mItalicCheckBox.isChecked();
-                int style;
-                if (bold && italic) {
-                    style = Constants.TEXT_STYLE_BOLD_ITALIC;
-                } else if (bold) {
-                    style = Constants.TEXT_STYLE_BOLD;
-                } else if (italic) {
-                    style = Constants.TEXT_STYLE_ITALIC;
-                } else {
-                    style = Constants.TEXT_STYLE_NORMAL;
-                }
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                int style = styleAdapter.getItem(position).getTextStyle();
                 storePreference(Constants.TEXT_STYLE_KEY, style);
                 syncData(Constants.TEXT_STYLE_PATH, Constants.TEXT_STYLE_KEY, style);
-                loadTextStylePreview();
+                loadTextStyleAndFontPreview(false);
             }
-        };
 
-        mItalicCheckBox.setOnCheckedChangeListener(checkedListener);
-        mBoldCheckBox.setOnCheckedChangeListener(checkedListener);
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
         mShadowSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -289,7 +279,10 @@ public class MainActivity extends WearApiActivity
                 String fontCode = fontAdapter.getItem(position).getFontCode();
                 storePreference(Constants.TEXT_FONT_KEY, fontCode);
                 syncData(Constants.TEXT_FONT_PATH, Constants.TEXT_FONT_KEY, fontCode);
-                loadTextFontPreview();
+                // Reset the style because not all custom fonts have them
+                storePreference(Constants.TEXT_STYLE_KEY, Typeface.NORMAL);
+                syncData(Constants.TEXT_STYLE_PATH, Constants.TEXT_STYLE_KEY, Typeface.NORMAL);
+                loadTextStyleAndFontPreview(true);
             }
 
             @Override
@@ -356,8 +349,7 @@ public class MainActivity extends WearApiActivity
         setImageButtonEnabled(mTextColorButton, enabled);
         setImageButtonEnabled(mPositionButton, enabled);
         mTextSizeSpinner.setEnabled(enabled);
-        mItalicCheckBox.setEnabled(enabled);
-        mBoldCheckBox.setEnabled(enabled);
+        mStyleSpinner.setEnabled(enabled);
         mShadowSwitch.setEnabled(enabled);
         mTextCaseSpinner.setEnabled(enabled);
         mTextFontSpinner.setEnabled(enabled);
@@ -393,8 +385,7 @@ public class MainActivity extends WearApiActivity
         loadTextPositionPreview();
         loadTextShadowPreview();
         loadTextSizePreview();
-        loadTextStylePreview();
-        loadTextFontPreview();
+        loadTextStyleAndFontPreview(true);
     }
 
     private void storePreference(String key, Object value) {
@@ -551,56 +542,25 @@ public class MainActivity extends WearApiActivity
         mTextPreview.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
     }
 
-    private void loadTextStylePreview() {
+    private void loadTextStyleAndFontPreview(boolean updateStyleOptions) {
         int textStyle = mSharedPreferences
-                .getInt(Constants.TEXT_STYLE_KEY, Constants.TEXT_STYLE_BOLD);
-        boolean bold;
-        boolean italic;
-        switch (textStyle) {
-            case Constants.TEXT_STYLE_BOLD_ITALIC:
-                mTextPreview.setTypeface(Typeface.DEFAULT, Typeface.BOLD_ITALIC);
-                bold = true;
-                italic = true;
-                break;
-            case Constants.TEXT_STYLE_BOLD:
-                mTextPreview.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
-                bold = true;
-                italic = false;
-                break;
-            case Constants.TEXT_STYLE_ITALIC:
-                mTextPreview.setTypeface(Typeface.DEFAULT, Typeface.ITALIC);
-                bold = false;
-                italic = true;
-                break;
-            default:
-                mTextPreview.setTypeface(Typeface.DEFAULT, Typeface.NORMAL);
-                bold = false;
-                italic = false;
-                break;
-        }
-        mBoldCheckBox.setChecked(bold);
-        mItalicCheckBox.setChecked(italic);
-    }
+                .getInt(Constants.TEXT_STYLE_KEY, Typeface.BOLD);
+        String textFontCode = mSharedPreferences
+                .getString(Constants.TEXT_FONT_KEY, Font.DEFAULT.getFontCode());
+        Font font = Font.findFontByCode(textFontCode);
+        mStyleSpinner.setSelection(textStyle);
+        FontAdapter fontAdapter = (FontAdapter) mTextFontSpinner.getAdapter();
+        int position = fontAdapter.getPosition(font);
+        mTextFontSpinner.setSelection(position);
+        mTextPreview.setTypeface(font.getTypeface(getApplicationContext(), textStyle));
+        mTextPreview.setText(mTextPreview.getText());
 
-    private void loadTextFontPreview() {
-        String fontCode = mSharedPreferences.getString(Constants.TEXT_FONT_KEY, Font.DEFAULT.getFontCode());
-        Font font = Font.findFontByCode(fontCode);
-        Log.d("HumanTime", fontCode + " - " + font.toString());
-        if (!font.hasBoldVersion()){
-            mBoldCheckBox.setChecked(false);
-            mBoldCheckBox.setEnabled(false);
-        } else {
-            mBoldCheckBox.setEnabled(true);
+        // The style options are only needed to be updated on a font change and the first time the
+        // activity loads
+        if (updateStyleOptions) {
+            StyleAdapter styleAdapter = (StyleAdapter) mStyleSpinner.getAdapter();
+            styleAdapter.setSelectedFont(font);
         }
-        if(!font.hasItalicVersion()){
-            mItalicCheckBox.setChecked(false);
-            mItalicCheckBox.setEnabled(false);
-        } else {
-            mItalicCheckBox.setEnabled(true);
-        }
-        int textStyle = mSharedPreferences.getInt(Constants.TEXT_STYLE_KEY,
-                Constants.TEXT_STYLE_NORMAL);
-        mTextPreview.setTypeface(font.getTypeface(this, textStyle));
     }
 
     /**

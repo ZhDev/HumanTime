@@ -33,10 +33,18 @@ import android.widget.TextView;
  */
 public class FontAdapter extends ArrayAdapter<Font> {
 
+    private final Font[] mFonts;
+
     public FontAdapter(Context context, int resource) {
         super(context, resource);
-        addAll(Font.DEFAULT, Font.CRAFTY_GIRLS, Font.DANCING_SCRIPT, Font.LOBSTER_TWO,
-                Font.PRESS_START_2P);
+        mFonts = new Font[]{
+                Font.DEFAULT,
+                Font.CRAFTY_GIRLS,
+                Font.DANCING_SCRIPT,
+                Font.LOBSTER_TWO,
+                Font.PRESS_START_2P
+        };
+        addAll(mFonts);
     }
 
     @Override
