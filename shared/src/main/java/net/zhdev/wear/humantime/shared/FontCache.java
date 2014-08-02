@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.zhdev.wear.humantime;
+package net.zhdev.wear.humantime.shared;
 
 import android.content.Context;
 import android.graphics.Typeface;

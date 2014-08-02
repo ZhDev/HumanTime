@@ -16,12 +16,13 @@
 
 package net.zhdev.wear.humantime;
 
+import net.zhdev.wear.humantime.shared.Font;
+
 import android.content.Context;
 import android.graphics.Typeface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.CheckedTextView;
 import android.widget.TextView;
 
 /**
@@ -30,44 +31,18 @@ import android.widget.TextView;
  *
  * @author Julio García Muñoz (ZhDev)
  */
-public class FontAdapter extends ArrayAdapter<CharSequence> {
+public class FontAdapter extends ArrayAdapter<Font> {
 
     public FontAdapter(Context context, int resource) {
         super(context, resource);
-        addAll(context.getResources().getTextArray(R.array.text_fonts));
+        addAll(Font.DEFAULT, Font.CRAFTY_GIRLS, Font.DANCING_SCRIPT, Font.LOBSTER_TWO,
+                Font.PRESS_START_2P);
     }
 
     @Override
     public View getDropDownView(int position, View convertView, ViewGroup parent) {
-        View view = super.getDropDownView(position, convertView, parent);
-        String fontPath;
-        switch (position) {
-            case 0:
-                fontPath = null;
-                break;
-            case 1:
-                fontPath = "fonts/crafty-girls.ttf";
-                break;
-            case 2:
-                fontPath = "fonts/dancing-script.ttf";
-                break;
-            case 3:
-                fontPath = "fonts/lobster-two.ttf";
-                break;
-            case 4:
-                fontPath = "fonts/press-start-2p.ttf";
-                break;
-            default:
-                fontPath = null;
-                break;
-        }
-        Typeface typeface;
-        if (fontPath != null) {
-            typeface = FontCache.getFont(view.getContext(), fontPath);
-        } else {
-            typeface = Typeface.DEFAULT;
-        }
-        ((TextView) view).setTypeface(typeface);
+        TextView view = (TextView) super.getDropDownView(position, convertView, parent);
+        view.setTypeface(getItem(position).getTypeface(view.getContext(), Typeface.NORMAL));
 
         return view;
     }

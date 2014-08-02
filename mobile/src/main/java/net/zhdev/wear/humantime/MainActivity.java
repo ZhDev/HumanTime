@@ -25,7 +25,8 @@ import com.google.android.gms.wearable.Wearable;
 import com.tundem.aboutlibraries.Libs;
 import com.tundem.aboutlibraries.ui.LibsActivity;
 
-import net.zhdev.humantime.shared.Constants;
+import net.zhdev.wear.humantime.shared.Constants;
+import net.zhdev.wear.humantime.shared.Font;
 
 import android.app.DialogFragment;
 import android.content.Intent;
@@ -191,7 +192,7 @@ public class MainActivity extends WearApiActivity
         mTextCaseSpinner.setAdapter(adapter);
 
         mTextFontSpinner = (Spinner) findViewById(R.id.sp_font);
-        FontAdapter fontAdapter = new FontAdapter(this, android.R.layout.simple_spinner_item);
+        final FontAdapter fontAdapter = new FontAdapter(this, android.R.layout.simple_spinner_item);
         fontAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mTextFontSpinner.setAdapter(fontAdapter);
 
@@ -285,7 +286,10 @@ public class MainActivity extends WearApiActivity
         mTextFontSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                // TODO: store, sync and load. Reset the text to force an autofit because the typeface change is not taken into account
+                String fontCode = fontAdapter.getItem(position).getFontCode();
+                storePreference(Constants.TEXT_FONT_KEY, fontCode);
+                syncData(Constants.TEXT_FONT_PATH, Constants.TEXT_FONT_KEY, fontCode);
+                loadTextFontPreview();
             }
 
             @Override
@@ -430,6 +434,8 @@ public class MainActivity extends WearApiActivity
             dataMap.putAsset(key, (Asset) value);
         } else if (value instanceof Float) {
             dataMap.putFloat(key, (Float) value);
+        } else if (value instanceof String) {
+            dataMap.putString(key, (String) value);
         } else {
             throw new IllegalArgumentException("Invalid value: " + value);
         }

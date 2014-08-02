@@ -16,7 +16,7 @@
 
 package net.zhdev.wear.humantime;
 
-import net.zhdev.humantime.shared.Constants;
+import net.zhdev.wear.humantime.shared.Constants;
 
 import android.app.Activity;
 import android.app.AlertDialog;
