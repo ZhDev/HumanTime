@@ -84,6 +84,20 @@ public final class Font {
         return mHasBoldItalicVersion;
     }
 
+    public boolean hasStyle(int style) {
+        if (style == Typeface.NORMAL) {
+            return true;
+        } else if (style == Typeface.BOLD) {
+            return mHasBoldVersion;
+        } else if (style == Typeface.ITALIC) {
+            return mHasItalicVersion;
+        } else if (style == Typeface.BOLD_ITALIC) {
+            return mHasBoldItalicVersion;
+        } else {
+            return false;
+        }
+    }
+
     public String getFontCode() {
         return mFontCode;
     }

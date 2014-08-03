@@ -311,12 +311,12 @@ public class MainActivity extends WearApiActivity
                 if (firstCall) {
                     firstCall = false;
                 } else {
-                    String fontCode = fontAdapter.getItem(position).getFontCode();
-                    storePreference(Constants.TEXT_FONT_KEY, fontCode);
-                    syncData(Constants.TEXT_FONT_PATH, Constants.TEXT_FONT_KEY, fontCode);
                     // Reset the style because not all custom fonts have them
                     storePreference(Constants.TEXT_STYLE_KEY, Typeface.NORMAL);
                     syncData(Constants.TEXT_STYLE_PATH, Constants.TEXT_STYLE_KEY, Typeface.NORMAL);
+                    String fontCode = fontAdapter.getItem(position).getFontCode();
+                    storePreference(Constants.TEXT_FONT_KEY, fontCode);
+                    syncData(Constants.TEXT_FONT_PATH, Constants.TEXT_FONT_KEY, fontCode);
                     loadTextStyleAndFontPreview(true, false);
                 }
             }
