@@ -163,13 +163,95 @@ public class MainActivity extends WearApiActivity
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mTextSizeSpinner.setAdapter(adapter);
 
+        mTextSizeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            /**
+             * Used to prevent the callback being fired after onCreate
+             */
+            private boolean firstCall = true;
+
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (firstCall) {
+                    firstCall = false;
+                } else {
+                    float textSize;
+                    switch (position) {
+                        case 0:
+                            textSize = Constants.TEXT_SIZE_LARGE;
+                            break;
+                        case 1:
+                            textSize = Constants.TEXT_SIZE_MEDIUM;
+                            break;
+                        case 2:
+                            textSize = Constants.TEXT_SIZE_SMALL;
+                            break;
+                        case 3:
+                            textSize = Constants.TEXT_SIZE_EXTRA_SMALL;
+                            break;
+                        default:
+                            textSize = Constants.TEXT_SIZE_LARGE;
+                            break;
+                    }
+                    storePreference(Constants.TEXT_SIZE_KEY, textSize);
+                    syncData(Constants.TEXT_SIZE_PATH, Constants.TEXT_SIZE_KEY, textSize);
+                    loadTextSizePreview(false);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
         mStyleSpinner = (Spinner) findViewById(R.id.sp_style);
         final StyleAdapter styleAdapter = new StyleAdapter(this,
                 android.R.layout.simple_spinner_item);
         styleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mStyleSpinner.setAdapter(styleAdapter);
 
+        mStyleSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            /**
+             * Used to prevent the callback being fired after onCreate
+             */
+            private boolean firstCall = true;
+
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (firstCall) {
+                    firstCall = false;
+                } else {
+                    int style = styleAdapter.getItem(position).getTextStyle();
+                    storePreference(Constants.TEXT_STYLE_KEY, style);
+                    syncData(Constants.TEXT_STYLE_PATH, Constants.TEXT_STYLE_KEY, style);
+                    loadTextStyleAndFontPreview(false, false);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
         mShadowSwitch = (Switch) findViewById(R.id.sw_shadow);
+        mShadowSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            /**
+             * Used to prevent the callback being fired after onCreate
+             */
+            private boolean firstCall = true;
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (firstCall) {
+                    firstCall = false;
+                } else {
+                    storePreference(Constants.TEXT_SHADOW_KEY, isChecked);
+                    syncData(Constants.TEXT_SHADOW_PATH, Constants.TEXT_SHADOW_KEY, isChecked);
+                    loadTextShadowPreview(false);
+                }
+            }
+        });
 
         mPositionButton = (ImageButton) findViewById(R.id.bt_position);
         mPositionButton.setOnClickListener(new View.OnClickListener() {
@@ -190,106 +272,63 @@ public class MainActivity extends WearApiActivity
                 android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mTextCaseSpinner.setAdapter(adapter);
+        mTextCaseSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            /**
+             * Used to prevent the callback being fired after onCreate
+             */
+            private boolean firstCall = true;
+
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (firstCall) {
+                    firstCall = false;
+                } else {
+                    // The position matches the fields in Constants
+                    storePreference(Constants.TEXT_CASE_KEY, position);
+                    syncData(Constants.TEXT_CASE_PATH, Constants.TEXT_CASE_KEY, position);
+                    loadTextCasePreview(false);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
         mTextFontSpinner = (Spinner) findViewById(R.id.sp_font);
         final FontAdapter fontAdapter = new FontAdapter(this, android.R.layout.simple_spinner_item);
         fontAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mTextFontSpinner.setAdapter(fontAdapter);
+        mTextFontSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            /**
+             * Used to prevent the callback being fired after onCreate
+             */
+            private boolean firstCall = true;
+
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (firstCall) {
+                    firstCall = false;
+                } else {
+                    String fontCode = fontAdapter.getItem(position).getFontCode();
+                    storePreference(Constants.TEXT_FONT_KEY, fontCode);
+                    syncData(Constants.TEXT_FONT_PATH, Constants.TEXT_FONT_KEY, fontCode);
+                    // Reset the style because not all custom fonts have them
+                    storePreference(Constants.TEXT_STYLE_KEY, Typeface.NORMAL);
+                    syncData(Constants.TEXT_STYLE_PATH, Constants.TEXT_STYLE_KEY, Typeface.NORMAL);
+                    loadTextStyleAndFontPreview(true, false);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
         initWithStoredValues();
-
         setElementsEnabled(false);
-
-        // Set some of the listeners after setting the restored values to prevent their side calls
-
-        mTextSizeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                float textSize;
-                switch (position) {
-                    case 0:
-                        textSize = Constants.TEXT_SIZE_LARGE;
-                        break;
-                    case 1:
-                        textSize = Constants.TEXT_SIZE_MEDIUM;
-                        break;
-                    case 2:
-                        textSize = Constants.TEXT_SIZE_SMALL;
-                        break;
-                    case 3:
-                        textSize = Constants.TEXT_SIZE_EXTRA_SMALL;
-                        break;
-                    default:
-                        textSize = Constants.TEXT_SIZE_LARGE;
-                        break;
-                }
-                storePreference(Constants.TEXT_SIZE_KEY, textSize);
-                syncData(Constants.TEXT_SIZE_PATH, Constants.TEXT_SIZE_KEY, textSize);
-                loadTextSizePreview();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
-        mStyleSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                int style = styleAdapter.getItem(position).getTextStyle();
-                storePreference(Constants.TEXT_STYLE_KEY, style);
-                syncData(Constants.TEXT_STYLE_PATH, Constants.TEXT_STYLE_KEY, style);
-                loadTextStyleAndFontPreview(false);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
-        mShadowSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                storePreference(Constants.TEXT_SHADOW_KEY, isChecked);
-                syncData(Constants.TEXT_SHADOW_PATH, Constants.TEXT_SHADOW_KEY, isChecked);
-                loadTextShadowPreview();
-            }
-        });
-
-        mTextCaseSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                // The position matches the fields in Constants
-                storePreference(Constants.TEXT_CASE_KEY, position);
-                syncData(Constants.TEXT_CASE_PATH, Constants.TEXT_CASE_KEY, position);
-                loadTextCasePreview();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
-        mTextFontSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String fontCode = fontAdapter.getItem(position).getFontCode();
-                storePreference(Constants.TEXT_FONT_KEY, fontCode);
-                syncData(Constants.TEXT_FONT_PATH, Constants.TEXT_FONT_KEY, fontCode);
-                // Reset the style because not all custom fonts have them
-                storePreference(Constants.TEXT_STYLE_KEY, Typeface.NORMAL);
-                syncData(Constants.TEXT_STYLE_PATH, Constants.TEXT_STYLE_KEY, Typeface.NORMAL);
-                loadTextStyleAndFontPreview(true);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
     }
 
     @Override
@@ -380,12 +419,12 @@ public class MainActivity extends WearApiActivity
      */
     private void initWithStoredValues() {
         loadBackgroundPreview();
-        loadTextCasePreview();
+        loadTextCasePreview(true);
         loadTextColorPreview();
         loadTextPositionPreview();
-        loadTextShadowPreview();
-        loadTextSizePreview();
-        loadTextStyleAndFontPreview(true);
+        loadTextShadowPreview(true);
+        loadTextSizePreview(true);
+        loadTextStyleAndFontPreview(true, true);
     }
 
     private void storePreference(String key, Object value) {
@@ -463,7 +502,7 @@ public class MainActivity extends WearApiActivity
         mTextPreview.setBackground(drawable);
     }
 
-    private void loadTextCasePreview() {
+    private void loadTextCasePreview(boolean updateSelector) {
         int textCase = mSharedPreferences
                 .getInt(Constants.TEXT_CASE_KEY, Constants.TEXT_CASE_NO_CAPS);
         String newText = getString(R.string.sample_time);
@@ -478,6 +517,10 @@ public class MainActivity extends WearApiActivity
                 break;
         }
         mTextPreview.setText(newText);
+
+        if (updateSelector) {
+            mTextCaseSpinner.setSelection(textCase);
+        }
     }
 
     private void loadTextColorPreview() {
@@ -527,39 +570,56 @@ public class MainActivity extends WearApiActivity
         levelListDrawable.setLevel(textPosition);
     }
 
-    private void loadTextShadowPreview() {
+    private void loadTextShadowPreview(boolean updateSelector) {
         boolean showShadow = mSharedPreferences.getBoolean(Constants.TEXT_SHADOW_KEY, true);
         if (showShadow) {
             mTextPreview.setShadowLayer(3.0F, 3.0F, 3.0F, Color.BLACK);
         } else {
             mTextPreview.setShadowLayer(0.0F, 0.0F, 0.0F, Color.BLACK);
         }
+        if (updateSelector) {
+            mShadowSwitch.setChecked(showShadow);
+        }
     }
 
-    private void loadTextSizePreview() {
+    private void loadTextSizePreview(boolean updateSelector) {
         float textSize = mSharedPreferences
                 .getFloat(Constants.TEXT_SIZE_KEY, Constants.TEXT_SIZE_LARGE);
         mTextPreview.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
+        if (updateSelector) {
+            if (textSize == Constants.TEXT_SIZE_LARGE) {
+                mTextSizeSpinner.setSelection(0);
+            } else if (textSize == Constants.TEXT_SIZE_MEDIUM) {
+                mTextSizeSpinner.setSelection(1);
+            } else if (textSize == Constants.TEXT_SIZE_SMALL) {
+                mTextSizeSpinner.setSelection(2);
+            } else if (textSize == Constants.TEXT_SIZE_EXTRA_SMALL) {
+                mTextSizeSpinner.setSelection(3);
+            }
+        }
     }
 
-    private void loadTextStyleAndFontPreview(boolean updateStyleOptions) {
+    private void loadTextStyleAndFontPreview(boolean updateStyleSelector,
+            boolean updateFontSelector) {
         int textStyle = mSharedPreferences
                 .getInt(Constants.TEXT_STYLE_KEY, Typeface.BOLD);
         String textFontCode = mSharedPreferences
                 .getString(Constants.TEXT_FONT_KEY, Font.DEFAULT.getFontCode());
         Font font = Font.findFontByCode(textFontCode);
-        mStyleSpinner.setSelection(textStyle);
-        FontAdapter fontAdapter = (FontAdapter) mTextFontSpinner.getAdapter();
-        int position = fontAdapter.getPosition(font);
-        mTextFontSpinner.setSelection(position);
         mTextPreview.setTypeface(font.getTypeface(getApplicationContext(), textStyle));
         mTextPreview.setText(mTextPreview.getText());
 
         // The style options are only needed to be updated on a font change and the first time the
         // activity loads
-        if (updateStyleOptions) {
+        if (updateStyleSelector) {
+            mStyleSpinner.setSelection(textStyle);
             StyleAdapter styleAdapter = (StyleAdapter) mStyleSpinner.getAdapter();
             styleAdapter.setSelectedFont(font);
+        }
+        if (updateFontSelector) {
+            FontAdapter fontAdapter = (FontAdapter) mTextFontSpinner.getAdapter();
+            int position = fontAdapter.getPosition(font);
+            mTextFontSpinner.setSelection(position);
         }
     }
 
