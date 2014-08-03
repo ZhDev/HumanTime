@@ -27,7 +27,7 @@ import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.Wearable;
 import com.google.android.gms.wearable.WearableListenerService;
 
-import net.zhdev.humantime.shared.Constants;
+import net.zhdev.wear.humantime.shared.Constants;
 
 import android.content.SharedPreferences;
 import android.graphics.Color;

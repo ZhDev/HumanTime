@@ -16,7 +16,7 @@
 
 package net.zhdev.wear.humantime;
 
-import net.zhdev.humantime.shared.Constants;
+import net.zhdev.wear.humantime.shared.Constants;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
