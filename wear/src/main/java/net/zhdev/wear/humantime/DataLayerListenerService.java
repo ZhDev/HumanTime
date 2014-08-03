@@ -107,6 +107,9 @@ public class DataLayerListenerService extends WearableListenerService {
                 } else if (Constants.TEXT_CASE_PATH.equals(uriPath)) {
                     int textCase = dataMap.getInt(Constants.TEXT_CASE_KEY);
                     editor.putInt(Constants.TEXT_CASE_KEY, textCase);
+                } else if (Constants.TEXT_FONT_PATH.equals(uriPath)) {
+                    String textFontCode = dataMap.getString(Constants.TEXT_FONT_KEY);
+                    editor.putString(Constants.TEXT_FONT_KEY, textFontCode);
                 }
 
                 editor.apply();

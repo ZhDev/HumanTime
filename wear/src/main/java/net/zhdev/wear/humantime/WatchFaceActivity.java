@@ -17,12 +17,12 @@
 package net.zhdev.wear.humantime;
 
 import net.zhdev.wear.humantime.shared.Constants;
+import net.zhdev.wear.humantime.shared.Font;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -97,7 +97,7 @@ public class WatchFaceActivity extends Activity implements DisplayManager.Displa
         loadTextPosition(preferences);
         loadTextShadow(preferences);
         loadTextSize(preferences);
-        loadTextStyle(preferences);
+        loadTextStyleAndFont(preferences);
     }
 
     @Override
@@ -156,8 +156,9 @@ public class WatchFaceActivity extends Activity implements DisplayManager.Displa
                 loadBackground(sharedPreferences);
             } else if (Constants.TEXT_COLOR_KEY.equals(key)) {
                 loadTextColor(sharedPreferences);
-            } else if (Constants.TEXT_STYLE_KEY.equals(key)) {
-                loadTextStyle(sharedPreferences);
+            } else if (Constants.TEXT_STYLE_KEY.equals(key)
+                    || Constants.TEXT_FONT_KEY.equals(key)) {
+                loadTextStyleAndFont(sharedPreferences);
             } else if (Constants.TEXT_SHADOW_KEY.equals(key)) {
                 loadTextShadow(sharedPreferences);
             } else if (Constants.TEXT_SIZE_KEY.equals(key)) {
@@ -255,21 +256,16 @@ public class WatchFaceActivity extends Activity implements DisplayManager.Displa
         mWatchText.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
     }
 
-    private void loadTextStyle(SharedPreferences preferences) {
+    private void loadTextStyleAndFont(SharedPreferences preferences) {
         int textStyle = preferences.getInt(Constants.TEXT_STYLE_KEY, Constants.TEXT_STYLE_BOLD);
-        switch (textStyle) {
-            case Constants.TEXT_STYLE_BOLD_ITALIC:
-                mWatchText.setTypeface(Typeface.DEFAULT, Typeface.BOLD_ITALIC);
-                break;
-            case Constants.TEXT_STYLE_BOLD:
-                mWatchText.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
-                break;
-            case Constants.TEXT_STYLE_ITALIC:
-                mWatchText.setTypeface(Typeface.DEFAULT, Typeface.ITALIC);
-                break;
-            default:
-                mWatchText.setTypeface(Typeface.DEFAULT, Typeface.NORMAL);
-                break;
+        String textFontCode = preferences
+                .getString(Constants.TEXT_FONT_KEY, Font.DEFAULT.getFontCode());
+        Font font = Font.findFontByCode(textFontCode);
+        // A change of font implies a change of style, if we receive the change of font first we
+        // might be in an invalid state
+        if (font.hasStyle(textStyle)) {
+            mWatchText.setTypeface(font.getTypeface(getApplicationContext(), textStyle));
+            mWatchText.setText(mWatchText.getText());
         }
     }
 }

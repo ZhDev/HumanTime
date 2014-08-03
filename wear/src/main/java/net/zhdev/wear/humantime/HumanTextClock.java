@@ -267,7 +267,7 @@ public class HumanTextClock extends AutofitTextView {
     }
 
     /**
-     * @see net.zhdev.humantime.shared.Constants
+     * @see net.zhdev.wear.humantime.shared.Constants
      */
     public void setTextCase(int textCase) {
         mTextCase = textCase;
