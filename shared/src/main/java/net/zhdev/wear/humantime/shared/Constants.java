@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.zhdev.humantime.shared;
+package net.zhdev.wear.humantime.shared;
 
 /**
  * This class provides a set of common constants shared by both the mobile app and the wearable
@@ -108,4 +108,7 @@ public final class Constants {
 
     public static final int BACKGROUND_TYPE_IMAGE = 1;
 
+    public static final String TEXT_FONT_KEY = "text_font";
+
+    public static final String TEXT_FONT_PATH = "/text_font";
 }

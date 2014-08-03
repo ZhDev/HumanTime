@@ -18,7 +18,7 @@ package net.zhdev.wear.humantime;
 
 import com.edmodo.cropper.CropImageView;
 
-import net.zhdev.humantime.shared.Constants;
+import net.zhdev.wear.humantime.shared.Constants;
 
 import android.app.Activity;
 import android.content.Intent;

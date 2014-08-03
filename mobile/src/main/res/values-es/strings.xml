@@ -10,11 +10,14 @@
     <string name="text">Texto</string>
     <string name="style">Estilo</string>
     <string name="shadow">Sombra</string>
-    <string name="bold">Negrita</string>
-    <string name="italic">Cursiva</string>
     <string name="size">Tamaño</string>
     <string name="position">Posición</string>
     <string name="caps">Mayúsculas</string>
+    <string name="font">Fuente</string>
+    <string name="normal">Normal</string>
+    <string name="bold"><b>Bold</b></string>
+    <string name="italic"><i>Italic</i></string>
+    <string name="bold_italic"><b><i>Bold+Italic</i></b></string>
 
     <string-array name="text_sizes">
         <item>Grande</item>

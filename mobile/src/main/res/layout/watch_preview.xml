@@ -17,29 +17,28 @@
   -->
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:mobile="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="200dp"
     android:layout_height="204dp"
     android:background="@drawable/watch_frame"
     tools:context=".MainActivity">
 
-    <TextView
+    <me.grantland.widget.AutofitTextView
         android:id="@+id/text_preview"
         android:layout_width="160dp"
         android:layout_height="160dp"
         android:layout_gravity="center"
-        android:background="@android:color/holo_blue_dark"
-        android:gravity="center"
+        android:maxLines="2"
         android:paddingBottom="2dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:paddingTop="2dp"
-        android:shadowColor="@android:color/black"
-        android:shadowDx="3"
-        android:shadowDy="3"
-        android:shadowRadius="3"
-        android:text="@string/sample_time"
-        android:textColor="@android:color/white"
-        android:textSize="30sp"
-        android:textStyle="bold" />
+        mobile:sizeToFit="true"
+        tools:background="@android:color/holo_blue_dark"
+        tools:gravity="center"
+        tools:text="@string/sample_time"
+        tools:textColor="@android:color/white"
+        tools:textSize="30sp"
+        tools:textStyle="bold" />
 </FrameLayout>

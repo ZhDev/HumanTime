@@ -36,6 +36,7 @@ dependencies {
     compile 'com.google.android.gms:play-services-wearable:+'
     compile 'com.edmodo:cropper:1.+'
     compile 'com.tundem.aboutlibraries:library:2.1.5@aar'
+    compile 'me.grantland:autofittextview:0.1.+'
 }
 
 applySigningConfig()
