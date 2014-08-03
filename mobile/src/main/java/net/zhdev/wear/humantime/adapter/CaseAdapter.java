@@ -16,6 +16,9 @@
 
 package net.zhdev.wear.humantime.adapter;
 
+import net.zhdev.wear.humantime.R;
+import net.zhdev.wear.humantime.shared.Constants;
+
 import android.content.Context;
 import android.widget.ArrayAdapter;
 
@@ -29,7 +32,9 @@ public class CaseAdapter extends ArrayAdapter<CaseAdapter.Case> {
     public CaseAdapter(Context context, int resource) {
         super(context, resource);
         Case[] cases = new Case[]{
-
+                new Case(Constants.TEXT_CASE_NO_CAPS, context.getString(R.string.no_caps)),
+                new Case(Constants.TEXT_CASE_ALL_CAPS, context.getString(R.string.all_caps)),
+                new Case(Constants.TEXT_CASE_FIRST_CAP, context.getString(R.string.first_cap))
         };
         addAll(cases);
     }
