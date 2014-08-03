@@ -23,6 +23,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -31,7 +32,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.TypedValue;
 import android.view.Display;
-import android.view.Gravity;
 import android.widget.FrameLayout;
 
 import java.io.FileNotFoundException;
@@ -206,40 +206,7 @@ public class WatchFaceActivity extends Activity implements DisplayManager.Displa
     private void loadTextPosition(SharedPreferences preferences) {
         int textPosition = preferences.getInt(Constants.TEXT_POSITION_KEY,
                 Constants.TEXT_POSITION_CENTER_CENTER);
-        int gravity;
-        switch (textPosition) {
-            case Constants.TEXT_POSITION_TOP_LEFT:
-                gravity = Gravity.TOP | Gravity.LEFT;
-                break;
-            case Constants.TEXT_POSITION_TOP_CENTER:
-                gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
-                break;
-            case Constants.TEXT_POSITION_TOP_RIGHT:
-                gravity = Gravity.TOP | Gravity.RIGHT;
-                break;
-            case Constants.TEXT_POSITION_CENTER_LEFT:
-                gravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
-                break;
-            case Constants.TEXT_POSITION_CENTER_CENTER:
-                gravity = Gravity.CENTER;
-                break;
-            case Constants.TEXT_POSITION_CENTER_RIGHT:
-                gravity = Gravity.CENTER_VERTICAL | Gravity.RIGHT;
-                break;
-            case Constants.TEXT_POSITION_BOTTOM_LEFT:
-                gravity = Gravity.BOTTOM | Gravity.LEFT;
-                break;
-            case Constants.TEXT_POSITION_BOTTOM_CENTER:
-                gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
-                break;
-            case Constants.TEXT_POSITION_BOTTOM_RIGHT:
-                gravity = Gravity.BOTTOM | Gravity.RIGHT;
-                break;
-            default:
-                gravity = Gravity.CENTER;
-                break;
-        }
-        mWatchText.setGravity(gravity);
+        mWatchText.setGravity(Constants.positionToGravity(textPosition));
     }
 
     private void loadTextShadow(SharedPreferences preferences) {
@@ -257,7 +224,7 @@ public class WatchFaceActivity extends Activity implements DisplayManager.Displa
     }
 
     private void loadTextStyleAndFont(SharedPreferences preferences) {
-        int textStyle = preferences.getInt(Constants.TEXT_STYLE_KEY, Constants.TEXT_STYLE_BOLD);
+        int textStyle = preferences.getInt(Constants.TEXT_STYLE_KEY, Typeface.BOLD);
         String textFontCode = preferences
                 .getString(Constants.TEXT_FONT_KEY, Font.DEFAULT.getFontCode());
         Font font = Font.findFontByCode(textFontCode);

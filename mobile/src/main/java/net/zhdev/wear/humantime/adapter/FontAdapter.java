@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.zhdev.wear.humantime;
+package net.zhdev.wear.humantime.adapter;
 
 import net.zhdev.wear.humantime.shared.Font;
 
@@ -33,18 +33,16 @@ import android.widget.TextView;
  */
 public class FontAdapter extends ArrayAdapter<Font> {
 
-    private final Font[] mFonts;
-
     public FontAdapter(Context context, int resource) {
         super(context, resource);
-        mFonts = new Font[]{
+        Font[] fonts = new Font[]{
                 Font.DEFAULT,
                 Font.CRAFTY_GIRLS,
                 Font.DANCING_SCRIPT,
                 Font.LOBSTER_TWO,
                 Font.PRESS_START_2P
         };
-        addAll(mFonts);
+        addAll(fonts);
     }
 
     @Override

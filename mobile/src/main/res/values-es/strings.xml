@@ -18,13 +18,10 @@
     <string name="bold"><b>Bold</b></string>
     <string name="italic"><i>Italic</i></string>
     <string name="bold_italic"><b><i>Bold+Italic</i></b></string>
-
-    <string-array name="text_sizes">
-        <item>Grande</item>
-        <item>Mediano</item>
-        <item>Pequeño</item>
-        <item>Extra pequeño</item>
-    </string-array>
+    <string name="large">Grande</string>
+    <string name="medium">Mediano</string>
+    <string name="small">Pequeño</string>
+    <string name="extra_small">Extra pequeño</string>
 
     <string-array name="text_caps">
         <item>ninguna</item>

@@ -25,6 +25,10 @@ import com.google.android.gms.wearable.Wearable;
 import com.tundem.aboutlibraries.Libs;
 import com.tundem.aboutlibraries.ui.LibsActivity;
 
+import net.zhdev.wear.humantime.adapter.CaseAdapter;
+import net.zhdev.wear.humantime.adapter.FontAdapter;
+import net.zhdev.wear.humantime.adapter.SizeAdapter;
+import net.zhdev.wear.humantime.adapter.StyleAdapter;
 import net.zhdev.wear.humantime.shared.Constants;
 import net.zhdev.wear.humantime.shared.Font;
 
@@ -44,12 +48,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.Spinner;
@@ -158,10 +160,9 @@ public class MainActivity extends WearApiActivity
         });
 
         mTextSizeSpinner = (Spinner) findViewById(R.id.sp_size);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter
-                .createFromResource(this, R.array.text_sizes, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mTextSizeSpinner.setAdapter(adapter);
+        SizeAdapter sizeAdapter = new SizeAdapter(this, android.R.layout.simple_spinner_item);
+        sizeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mTextSizeSpinner.setAdapter(sizeAdapter);
 
         mTextSizeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             /**
@@ -174,24 +175,8 @@ public class MainActivity extends WearApiActivity
                 if (firstCall) {
                     firstCall = false;
                 } else {
-                    float textSize;
-                    switch (position) {
-                        case 0:
-                            textSize = Constants.TEXT_SIZE_LARGE;
-                            break;
-                        case 1:
-                            textSize = Constants.TEXT_SIZE_MEDIUM;
-                            break;
-                        case 2:
-                            textSize = Constants.TEXT_SIZE_SMALL;
-                            break;
-                        case 3:
-                            textSize = Constants.TEXT_SIZE_EXTRA_SMALL;
-                            break;
-                        default:
-                            textSize = Constants.TEXT_SIZE_LARGE;
-                            break;
-                    }
+                    float textSize = ((SizeAdapter.Size) parent.getItemAtPosition(position))
+                            .getSize();
                     storePreference(Constants.TEXT_SIZE_KEY, textSize);
                     syncData(Constants.TEXT_SIZE_PATH, Constants.TEXT_SIZE_KEY, textSize);
                     loadTextSizePreview(false);
@@ -205,8 +190,7 @@ public class MainActivity extends WearApiActivity
         });
 
         mStyleSpinner = (Spinner) findViewById(R.id.sp_style);
-        final StyleAdapter styleAdapter = new StyleAdapter(this,
-                android.R.layout.simple_spinner_item);
+        StyleAdapter styleAdapter = new StyleAdapter(this, android.R.layout.simple_spinner_item);
         styleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mStyleSpinner.setAdapter(styleAdapter);
 
@@ -221,7 +205,8 @@ public class MainActivity extends WearApiActivity
                 if (firstCall) {
                     firstCall = false;
                 } else {
-                    int style = styleAdapter.getItem(position).getTextStyle();
+                    int style = ((StyleAdapter.Style) parent.getItemAtPosition(position))
+                            .getTextStyle();
                     storePreference(Constants.TEXT_STYLE_KEY, style);
                     syncData(Constants.TEXT_STYLE_PATH, Constants.TEXT_STYLE_KEY, style);
                     loadTextStyleAndFontPreview(false, false);
@@ -268,10 +253,9 @@ public class MainActivity extends WearApiActivity
         });
 
         mTextCaseSpinner = (Spinner) findViewById(R.id.sp_caps);
-        adapter = ArrayAdapter.createFromResource(this, R.array.text_caps,
-                android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mTextCaseSpinner.setAdapter(adapter);
+        CaseAdapter caseAdapter = new CaseAdapter(this, android.R.layout.simple_spinner_item);
+        caseAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mTextCaseSpinner.setAdapter(caseAdapter);
         mTextCaseSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             /**
              * Used to prevent the callback being fired after onCreate
@@ -283,9 +267,10 @@ public class MainActivity extends WearApiActivity
                 if (firstCall) {
                     firstCall = false;
                 } else {
-                    // The position matches the fields in Constants
-                    storePreference(Constants.TEXT_CASE_KEY, position);
-                    syncData(Constants.TEXT_CASE_PATH, Constants.TEXT_CASE_KEY, position);
+                    int textCase = ((CaseAdapter.Case) parent.getItemAtPosition(position))
+                            .getCase();
+                    storePreference(Constants.TEXT_CASE_KEY, textCase);
+                    syncData(Constants.TEXT_CASE_PATH, Constants.TEXT_CASE_KEY, textCase);
                     loadTextCasePreview(false);
                 }
             }
@@ -297,7 +282,7 @@ public class MainActivity extends WearApiActivity
         });
 
         mTextFontSpinner = (Spinner) findViewById(R.id.sp_font);
-        final FontAdapter fontAdapter = new FontAdapter(this, android.R.layout.simple_spinner_item);
+        FontAdapter fontAdapter = new FontAdapter(this, android.R.layout.simple_spinner_item);
         fontAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mTextFontSpinner.setAdapter(fontAdapter);
         mTextFontSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -314,7 +299,7 @@ public class MainActivity extends WearApiActivity
                     // Reset the style because not all custom fonts have them
                     storePreference(Constants.TEXT_STYLE_KEY, Typeface.NORMAL);
                     syncData(Constants.TEXT_STYLE_PATH, Constants.TEXT_STYLE_KEY, Typeface.NORMAL);
-                    String fontCode = fontAdapter.getItem(position).getFontCode();
+                    String fontCode = ((Font) parent.getItemAtPosition(position)).getFontCode();
                     storePreference(Constants.TEXT_FONT_KEY, fontCode);
                     syncData(Constants.TEXT_FONT_PATH, Constants.TEXT_FONT_KEY, fontCode);
                     loadTextStyleAndFontPreview(true, false);
@@ -531,40 +516,7 @@ public class MainActivity extends WearApiActivity
     private void loadTextPositionPreview() {
         int textPosition = mSharedPreferences.getInt(Constants.TEXT_POSITION_KEY,
                 Constants.TEXT_POSITION_CENTER_CENTER);
-        int gravity;
-        switch (textPosition) {
-            case Constants.TEXT_POSITION_TOP_LEFT:
-                gravity = Gravity.TOP | Gravity.LEFT;
-                break;
-            case Constants.TEXT_POSITION_TOP_CENTER:
-                gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
-                break;
-            case Constants.TEXT_POSITION_TOP_RIGHT:
-                gravity = Gravity.TOP | Gravity.RIGHT;
-                break;
-            case Constants.TEXT_POSITION_CENTER_LEFT:
-                gravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
-                break;
-            case Constants.TEXT_POSITION_CENTER_CENTER:
-                gravity = Gravity.CENTER;
-                break;
-            case Constants.TEXT_POSITION_CENTER_RIGHT:
-                gravity = Gravity.CENTER_VERTICAL | Gravity.RIGHT;
-                break;
-            case Constants.TEXT_POSITION_BOTTOM_LEFT:
-                gravity = Gravity.BOTTOM | Gravity.LEFT;
-                break;
-            case Constants.TEXT_POSITION_BOTTOM_CENTER:
-                gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
-                break;
-            case Constants.TEXT_POSITION_BOTTOM_RIGHT:
-                gravity = Gravity.BOTTOM | Gravity.RIGHT;
-                break;
-            default:
-                gravity = Gravity.CENTER;
-                break;
-        }
-        mTextPreview.setGravity(gravity);
+        mTextPreview.setGravity(Constants.positionToGravity(textPosition));
         LevelListDrawable levelListDrawable = (LevelListDrawable) mPositionButton.getDrawable();
         // The position matches the order in the LevelListDrawable
         levelListDrawable.setLevel(textPosition);

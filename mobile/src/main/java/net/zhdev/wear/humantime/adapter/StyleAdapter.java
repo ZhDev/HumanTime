@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package net.zhdev.wear.humantime;
+package net.zhdev.wear.humantime.adapter;
 
+import net.zhdev.wear.humantime.R;
 import net.zhdev.wear.humantime.shared.Font;
 
 import android.content.Context;
@@ -25,22 +26,26 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-// TODO: Add a class header comment!
+/**
+ * An adapter backed by an array of fixed <code>Style</code> objects. The elements of the adapter
+ * can be disabled depending on the font selected because not all the fonts included contain all
+ * the possible styles.
+ *
+ * @author Julio García Muñoz (ZhDev)
+ */
 public class StyleAdapter extends ArrayAdapter<StyleAdapter.Style> {
-
-    private final Style[] mStyles;
 
     private Font mSelectedFont;
 
     public StyleAdapter(Context context, int resource) {
         super(context, resource);
-        mStyles = new Style[]{
+        Style[] styles = new Style[]{
                 Style.getInstance(context, Typeface.NORMAL),
                 Style.getInstance(context, Typeface.BOLD),
                 Style.getInstance(context, Typeface.ITALIC),
                 Style.getInstance(context, Typeface.BOLD_ITALIC)
         };
-        addAll(mStyles);
+        addAll(styles);
         mSelectedFont = Font.DEFAULT;
     }
 
@@ -51,7 +56,7 @@ public class StyleAdapter extends ArrayAdapter<StyleAdapter.Style> {
     @Override
     public View getDropDownView(int position, View convertView, ViewGroup parent) {
         TextView view = (TextView) super.getDropDownView(position, convertView, parent);
-        view.setText(mStyles[position].getRepresentation());
+        view.setText(getItem(position).getRepresentation());
         boolean enabled;
         switch (position) {
             case 1: // BOLD
