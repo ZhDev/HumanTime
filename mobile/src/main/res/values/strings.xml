@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2014 Julio García Muñoz (ZhDev)
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,23 +27,22 @@
     <string name="text">Text</string>
     <string name="style">Style</string>
     <string name="shadow">Shadow</string>
-    <string name="bold">Bold</string>
-    <string name="italic">Italic</string>
     <string name="size">Size</string>
     <string name="position">Position</string>
     <string name="caps">Caps</string>
-
-    <string-array name="text_sizes">
-        <item>Large</item>
-        <item>Medium</item>
-        <item>Small</item>
-        <item>Extra small</item>
-    </string-array>
-
-    <string-array name="text_caps">
-        <item>none</item>
-        <item>ALL</item>
-        <item>First</item>
-    </string-array>
+    <string name="font">Font</string>
+    <string name="normal">Normal</string>
+    <string name="bold"><b>Bold</b></string>
+    <string name="italic"><i>Italic</i></string>
+    <string name="bold_italic"><b><i>Bold+Italic</i></b></string>
+    <string name="large">Large</string>
+    <string name="medium">Medium</string>
+    <string name="small">Small</string>
+    <string name="extra_small">Extra small</string>
+    <string name="no_caps">none</string>
+    <string name="all_caps">ALL</string>
+    <string name="first_cap">First</string>
+    <string name="date">Date</string>
+    <string name="sample_date">date</string>
 
 </resources>

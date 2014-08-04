@@ -1,5 +1,5 @@
 apply plugin: 'com.android.application'
-
+apply from: "$rootDir/signing.gradle"
 
 android {
     compileSdkVersion 20
@@ -13,8 +13,8 @@ android {
         applicationId "net.zhdev.wear.humantime"
         minSdkVersion 20
         targetSdkVersion 20
-        versionCode 1100
-        versionName "1.1"
+        versionCode versionMajor * 10000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
+        versionName "${versionMajor}.${versionMinor}.${versionPatch}"
     }
     buildTypes {
         debug {
@@ -37,10 +37,4 @@ dependencies {
     compile 'me.grantland:autofittextview:0.1.+'
     compile project(':shared')
 }
-
-ext.props = new Properties()
-props.load(new FileInputStream(rootProject.file("release.properties")))
-android.signingConfigs.release.storeFile file(props.keyStore)
-android.signingConfigs.release.keyAlias props.keyAlias
-android.signingConfigs.release.storePassword fetchPassword('keyStorePassword')
-android.signingConfigs.release.keyPassword fetchPassword('keyAliasPassword')
+applySigningConfig()

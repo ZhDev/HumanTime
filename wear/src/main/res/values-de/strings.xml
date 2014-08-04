@@ -22,7 +22,8 @@
     It should look like <hours> + space + <time_construction> + space + <minutes>, where <hours>,
     <time_construction> and <minutes> don't contain any spaces, only '\u00A0'.-->
 
-    <string name="one">ein</string>
+    <string name="one">eins</string>
+    <!-- <string name="one">ein</string> If it is o\'clock, fixed programmatically-->
     <string name="two">zwei</string>
     <string name="three">drei</string>
     <string name="four">vier</string>

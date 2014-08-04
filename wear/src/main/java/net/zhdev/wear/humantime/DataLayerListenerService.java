@@ -27,7 +27,7 @@ import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.Wearable;
 import com.google.android.gms.wearable.WearableListenerService;
 
-import net.zhdev.humantime.shared.Constants;
+import net.zhdev.wear.humantime.shared.Constants;
 
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -107,6 +107,12 @@ public class DataLayerListenerService extends WearableListenerService {
                 } else if (Constants.TEXT_CASE_PATH.equals(uriPath)) {
                     int textCase = dataMap.getInt(Constants.TEXT_CASE_KEY);
                     editor.putInt(Constants.TEXT_CASE_KEY, textCase);
+                } else if (Constants.TEXT_FONT_PATH.equals(uriPath)) {
+                    String textFontCode = dataMap.getString(Constants.TEXT_FONT_KEY);
+                    editor.putString(Constants.TEXT_FONT_KEY, textFontCode);
+                } else if (Constants.DATE_PATH.equals(uriPath)) {
+                    boolean showDate = dataMap.getBoolean(Constants.DATE_KEY);
+                    editor.putBoolean(Constants.DATE_KEY, showDate);
                 }
 
                 editor.apply();

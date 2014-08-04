@@ -25,7 +25,12 @@ import com.google.android.gms.wearable.Wearable;
 import com.tundem.aboutlibraries.Libs;
 import com.tundem.aboutlibraries.ui.LibsActivity;
 
-import net.zhdev.humantime.shared.Constants;
+import net.zhdev.wear.humantime.adapter.CaseAdapter;
+import net.zhdev.wear.humantime.adapter.FontAdapter;
+import net.zhdev.wear.humantime.adapter.SizeAdapter;
+import net.zhdev.wear.humantime.adapter.StyleAdapter;
+import net.zhdev.wear.humantime.shared.Constants;
+import net.zhdev.wear.humantime.shared.Font;
 
 import android.app.DialogFragment;
 import android.content.Intent;
@@ -43,15 +48,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -59,6 +62,8 @@ import android.widget.TextView;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+
+import me.grantland.widget.AutofitTextView;
 
 /**
  * MainActivity implements a settings screen where the user can select different aspects of how the
@@ -82,15 +87,15 @@ public class MainActivity extends WearApiActivity
 
     private SharedPreferences mSharedPreferences;
 
-    private TextView mTextPreview;
+    private AutofitTextView mTextPreview;
 
-    private Spinner mTextSizeSpinner;
+    private TextView mDatePreview;
+
+    private LinearLayout mContainerPreview;
+
+    private Spinner mSizeSpinner;
 
     private Spinner mTextCaseSpinner;
-
-    private CheckBox mItalicCheckBox;
-
-    private CheckBox mBoldCheckBox;
 
     private Switch mShadowSwitch;
 
@@ -101,6 +106,12 @@ public class MainActivity extends WearApiActivity
     private ImageButton mTextColorButton;
 
     private ImageButton mPositionButton;
+
+    private Spinner mTextFontSpinner;
+
+    private Spinner mStyleSpinner;
+
+    private Switch mDateSwitch;
 
     private static Asset createAssetFromBitmap(Bitmap bitmap) {
         final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
@@ -116,7 +127,9 @@ public class MainActivity extends WearApiActivity
 
         mSharedPreferences = getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE);
 
-        mTextPreview = (TextView) findViewById(R.id.text_preview);
+        mTextPreview = (AutofitTextView) findViewById(R.id.text_preview);
+        mDatePreview = (TextView) findViewById(R.id.date_preview);
+        mContainerPreview = (LinearLayout) findViewById(R.id.container_preview);
 
         mBackgroundColorButton = (ImageButton) findViewById(R.id.bt_background_color);
         mBackgroundColorButton.setOnClickListener(new View.OnClickListener() {
@@ -156,14 +169,65 @@ public class MainActivity extends WearApiActivity
             }
         });
 
-        mTextSizeSpinner = (Spinner) findViewById(R.id.sp_size);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter
-                .createFromResource(this, R.array.text_sizes, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mTextSizeSpinner.setAdapter(adapter);
+        mSizeSpinner = (Spinner) findViewById(R.id.sp_size);
+        SizeAdapter sizeAdapter = new SizeAdapter(this, android.R.layout.simple_spinner_item);
+        sizeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSizeSpinner.setAdapter(sizeAdapter);
 
-        mItalicCheckBox = (CheckBox) findViewById(R.id.cb_italic);
-        mBoldCheckBox = (CheckBox) findViewById(R.id.cb_bold);
+        mSizeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            /**
+             * Used to prevent the callback being fired after onCreate, setSelection() is blocking
+             */
+            private boolean firstCall = true;
+
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (firstCall) {
+                    firstCall = false;
+                } else {
+                    float textSize = ((SizeAdapter.Size) parent.getItemAtPosition(position))
+                            .getSize();
+                    storePreference(Constants.TEXT_SIZE_KEY, textSize);
+                    syncData(Constants.TEXT_SIZE_PATH, Constants.TEXT_SIZE_KEY, textSize);
+                    loadTextSizePreview(false);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        mStyleSpinner = (Spinner) findViewById(R.id.sp_style);
+        StyleAdapter styleAdapter = new StyleAdapter(this, android.R.layout.simple_spinner_item);
+        styleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mStyleSpinner.setAdapter(styleAdapter);
+
+        mStyleSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            /**
+             * Used to prevent the callback being fired after onCreate, setSelection() is blocking
+             */
+            private boolean firstCall = true;
+
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (firstCall) {
+                    firstCall = false;
+                } else {
+                    int style = ((StyleAdapter.Style) parent.getItemAtPosition(position))
+                            .getTextStyle();
+                    storePreference(Constants.TEXT_STYLE_KEY, style);
+                    syncData(Constants.TEXT_STYLE_PATH, Constants.TEXT_STYLE_KEY, style);
+                    loadTextStyleAndFontPreview(false, false);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
         mShadowSwitch = (Switch) findViewById(R.id.sw_shadow);
 
@@ -182,41 +246,26 @@ public class MainActivity extends WearApiActivity
         });
 
         mTextCaseSpinner = (Spinner) findViewById(R.id.sp_caps);
-        adapter = ArrayAdapter.createFromResource(this, R.array.text_caps,
-                android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mTextCaseSpinner.setAdapter(adapter);
+        CaseAdapter caseAdapter = new CaseAdapter(this, android.R.layout.simple_spinner_item);
+        caseAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mTextCaseSpinner.setAdapter(caseAdapter);
+        mTextCaseSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            /**
+             * Used to prevent the callback being fired after onCreate, setSelection() is blocking
+             */
+            private boolean firstCall = true;
 
-        initWithStoredValues();
-
-        setElementsEnabled(false);
-
-        // Set some of the listeners after setting the restored values to prevent their side calls
-
-        mTextSizeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                float textSize;
-                switch (position) {
-                    case 0:
-                        textSize = Constants.TEXT_SIZE_LARGE;
-                        break;
-                    case 1:
-                        textSize = Constants.TEXT_SIZE_MEDIUM;
-                        break;
-                    case 2:
-                        textSize = Constants.TEXT_SIZE_SMALL;
-                        break;
-                    case 3:
-                        textSize = Constants.TEXT_SIZE_EXTRA_SMALL;
-                        break;
-                    default:
-                        textSize = Constants.TEXT_SIZE_LARGE;
-                        break;
+                if (firstCall) {
+                    firstCall = false;
+                } else {
+                    int textCase = ((CaseAdapter.Case) parent.getItemAtPosition(position))
+                            .getCase();
+                    storePreference(Constants.TEXT_CASE_KEY, textCase);
+                    syncData(Constants.TEXT_CASE_PATH, Constants.TEXT_CASE_KEY, textCase);
+                    loadTextCasePreview(false);
                 }
-                storePreference(Constants.TEXT_SIZE_KEY, textSize);
-                syncData(Constants.TEXT_SIZE_PATH, Constants.TEXT_SIZE_KEY, textSize);
-                loadTextSizePreview();
             }
 
             @Override
@@ -225,52 +274,62 @@ public class MainActivity extends WearApiActivity
             }
         });
 
-        CompoundButton.OnCheckedChangeListener checkedListener
-                = new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                boolean bold = mBoldCheckBox.isChecked();
-                boolean italic = mItalicCheckBox.isChecked();
-                int style;
-                if (bold && italic) {
-                    style = Constants.TEXT_STYLE_BOLD_ITALIC;
-                } else if (bold) {
-                    style = Constants.TEXT_STYLE_BOLD;
-                } else if (italic) {
-                    style = Constants.TEXT_STYLE_ITALIC;
-                } else {
-                    style = Constants.TEXT_STYLE_NORMAL;
-                }
-                storePreference(Constants.TEXT_STYLE_KEY, style);
-                syncData(Constants.TEXT_STYLE_PATH, Constants.TEXT_STYLE_KEY, style);
-                loadTextStylePreview();
-            }
-        };
+        mTextFontSpinner = (Spinner) findViewById(R.id.sp_font);
+        FontAdapter fontAdapter = new FontAdapter(this, android.R.layout.simple_spinner_item);
+        fontAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mTextFontSpinner.setAdapter(fontAdapter);
+        mTextFontSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            /**
+             * Used to prevent the callback being fired after onCreate, setSelection() is blocking
+             */
+            private boolean firstCall = true;
 
-        mItalicCheckBox.setOnCheckedChangeListener(checkedListener);
-        mBoldCheckBox.setOnCheckedChangeListener(checkedListener);
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (firstCall) {
+                    firstCall = false;
+                } else {
+                    // Reset the style because not all custom fonts have them
+                    storePreference(Constants.TEXT_STYLE_KEY, Typeface.NORMAL);
+                    syncData(Constants.TEXT_STYLE_PATH, Constants.TEXT_STYLE_KEY, Typeface.NORMAL);
+                    String fontCode = ((Font) parent.getItemAtPosition(position)).getFontCode();
+                    storePreference(Constants.TEXT_FONT_KEY, fontCode);
+                    syncData(Constants.TEXT_FONT_PATH, Constants.TEXT_FONT_KEY, fontCode);
+                    loadTextStyleAndFontPreview(true, false);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        mDateSwitch = (Switch) findViewById(R.id.sw_date);
+
+        initWithStoredValues();
+        setElementsEnabled(false);
+
+        // Switches can be initialized before having an OnCheckedChangeListener. Their callbacks
+        // won't be triggered because the calls to setChecked() are blocking, whereas setSelection()
+        // for Spinners are not.
 
         mShadowSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 storePreference(Constants.TEXT_SHADOW_KEY, isChecked);
                 syncData(Constants.TEXT_SHADOW_PATH, Constants.TEXT_SHADOW_KEY, isChecked);
-                loadTextShadowPreview();
+                loadTextShadowPreview(false);
             }
         });
 
-        mTextCaseSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                // The position matches the fields in Constants
-                storePreference(Constants.TEXT_CASE_KEY, position);
-                syncData(Constants.TEXT_CASE_PATH, Constants.TEXT_CASE_KEY, position);
-                loadTextCasePreview();
-            }
+        mDateSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                storePreference(Constants.DATE_KEY, isChecked);
+                syncData(Constants.DATE_PATH, Constants.DATE_KEY, isChecked);
+                loadDatePreview(false);
             }
         });
     }
@@ -331,11 +390,12 @@ public class MainActivity extends WearApiActivity
         setImageButtonEnabled(mBackgroundImageButton, enabled);
         setImageButtonEnabled(mTextColorButton, enabled);
         setImageButtonEnabled(mPositionButton, enabled);
-        mTextSizeSpinner.setEnabled(enabled);
-        mItalicCheckBox.setEnabled(enabled);
-        mBoldCheckBox.setEnabled(enabled);
+        mSizeSpinner.setEnabled(enabled);
+        mStyleSpinner.setEnabled(enabled);
         mShadowSwitch.setEnabled(enabled);
         mTextCaseSpinner.setEnabled(enabled);
+        mTextFontSpinner.setEnabled(enabled);
+        mDatePreview.setEnabled(enabled);
     }
 
     /**
@@ -363,12 +423,13 @@ public class MainActivity extends WearApiActivity
      */
     private void initWithStoredValues() {
         loadBackgroundPreview();
-        loadTextCasePreview();
+        loadTextCasePreview(true);
         loadTextColorPreview();
         loadTextPositionPreview();
-        loadTextShadowPreview();
-        loadTextSizePreview();
-        loadTextStylePreview();
+        loadTextShadowPreview(true);
+        loadTextSizePreview(true);
+        loadTextStyleAndFontPreview(true, true);
+        loadDatePreview(true);
     }
 
     private void storePreference(String key, Object value) {
@@ -382,10 +443,13 @@ public class MainActivity extends WearApiActivity
             editor.putInt(key, (Integer) value);
         } else if (Constants.BACKGROUND_ASSET_LAST_CHANGED_KEY.equals(key)) {
             editor.putLong(key, (Long) value);
-        } else if (Constants.TEXT_SHADOW_KEY.equals(key)) {
+        } else if (Constants.TEXT_SHADOW_KEY.equals(key)
+                || Constants.DATE_KEY.equals(key)) {
             editor.putBoolean(key, (Boolean) value);
         } else if (Constants.TEXT_SIZE_KEY.equals(key)) {
             editor.putFloat(key, (Float) value);
+        } else if (Constants.TEXT_FONT_KEY.equals(key)) {
+            editor.putString(key, (String) value);
         }
         editor.apply();
     }
@@ -408,6 +472,8 @@ public class MainActivity extends WearApiActivity
             dataMap.putAsset(key, (Asset) value);
         } else if (value instanceof Float) {
             dataMap.putFloat(key, (Float) value);
+        } else if (value instanceof String) {
+            dataMap.putString(key, (String) value);
         } else {
             throw new IllegalArgumentException("Invalid value: " + value);
         }
@@ -439,10 +505,10 @@ public class MainActivity extends WearApiActivity
                 drawable = new ColorDrawable(color);
             }
         }
-        mTextPreview.setBackground(drawable);
+        mContainerPreview.setBackground(drawable);
     }
 
-    private void loadTextCasePreview() {
+    private void loadTextCasePreview(boolean updateSelector) {
         int textCase = mSharedPreferences
                 .getInt(Constants.TEXT_CASE_KEY, Constants.TEXT_CASE_NO_CAPS);
         String newText = getString(R.string.sample_time);
@@ -457,99 +523,99 @@ public class MainActivity extends WearApiActivity
                 break;
         }
         mTextPreview.setText(newText);
+
+        if (updateSelector) {
+            mTextCaseSpinner.setSelection(textCase);
+        }
     }
 
     private void loadTextColorPreview() {
         int textColor = mSharedPreferences.getInt(Constants.TEXT_COLOR_KEY, Color.WHITE);
         mTextPreview.setTextColor(textColor);
+        mDatePreview.setTextColor(textColor);
     }
 
     private void loadTextPositionPreview() {
         int textPosition = mSharedPreferences.getInt(Constants.TEXT_POSITION_KEY,
                 Constants.TEXT_POSITION_CENTER_CENTER);
-        int gravity;
-        switch (textPosition) {
-            case Constants.TEXT_POSITION_TOP_LEFT:
-                gravity = Gravity.TOP | Gravity.LEFT;
-                break;
-            case Constants.TEXT_POSITION_TOP_CENTER:
-                gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
-                break;
-            case Constants.TEXT_POSITION_TOP_RIGHT:
-                gravity = Gravity.TOP | Gravity.RIGHT;
-                break;
-            case Constants.TEXT_POSITION_CENTER_LEFT:
-                gravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
-                break;
-            case Constants.TEXT_POSITION_CENTER_CENTER:
-                gravity = Gravity.CENTER;
-                break;
-            case Constants.TEXT_POSITION_CENTER_RIGHT:
-                gravity = Gravity.CENTER_VERTICAL | Gravity.RIGHT;
-                break;
-            case Constants.TEXT_POSITION_BOTTOM_LEFT:
-                gravity = Gravity.BOTTOM | Gravity.LEFT;
-                break;
-            case Constants.TEXT_POSITION_BOTTOM_CENTER:
-                gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
-                break;
-            case Constants.TEXT_POSITION_BOTTOM_RIGHT:
-                gravity = Gravity.BOTTOM | Gravity.RIGHT;
-                break;
-            default:
-                gravity = Gravity.CENTER;
-                break;
-        }
+        int gravity = Constants.positionToGravity(textPosition);
         mTextPreview.setGravity(gravity);
+        mDatePreview.setGravity(gravity);
+        mContainerPreview.setGravity(gravity);
         LevelListDrawable levelListDrawable = (LevelListDrawable) mPositionButton.getDrawable();
         // The position matches the order in the LevelListDrawable
         levelListDrawable.setLevel(textPosition);
     }
 
-    private void loadTextShadowPreview() {
+    private void loadTextShadowPreview(boolean updateSelector) {
         boolean showShadow = mSharedPreferences.getBoolean(Constants.TEXT_SHADOW_KEY, true);
         if (showShadow) {
             mTextPreview.setShadowLayer(3.0F, 3.0F, 3.0F, Color.BLACK);
+            mDatePreview.setShadowLayer(3.0F, 3.0F, 3.0F, Color.BLACK);
         } else {
             mTextPreview.setShadowLayer(0.0F, 0.0F, 0.0F, Color.BLACK);
+            mDatePreview.setShadowLayer(0.0F, 0.0F, 0.0F, Color.BLACK);
+        }
+        if (updateSelector) {
+            mShadowSwitch.setChecked(showShadow);
         }
     }
 
-    private void loadTextSizePreview() {
+    private void loadTextSizePreview(boolean updateSelector) {
         float textSize = mSharedPreferences
                 .getFloat(Constants.TEXT_SIZE_KEY, Constants.TEXT_SIZE_LARGE);
         mTextPreview.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
+        //mTextPreview.setText(mTextPreview.getText());
+        // mDatePreview.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize / 2.0F + 5.0F);
+        if (updateSelector) {
+            if (textSize == Constants.TEXT_SIZE_LARGE) {
+                mSizeSpinner.setSelection(0);
+            } else if (textSize == Constants.TEXT_SIZE_MEDIUM) {
+                mSizeSpinner.setSelection(1);
+            } else if (textSize == Constants.TEXT_SIZE_SMALL) {
+                mSizeSpinner.setSelection(2);
+            } else if (textSize == Constants.TEXT_SIZE_EXTRA_SMALL) {
+                mSizeSpinner.setSelection(3);
+            }
+        }
     }
 
-    private void loadTextStylePreview() {
+    private void loadTextStyleAndFontPreview(boolean updateStyleSelector,
+            boolean updateFontSelector) {
         int textStyle = mSharedPreferences
-                .getInt(Constants.TEXT_STYLE_KEY, Constants.TEXT_STYLE_BOLD);
-        boolean bold;
-        boolean italic;
-        switch (textStyle) {
-            case Constants.TEXT_STYLE_BOLD_ITALIC:
-                mTextPreview.setTypeface(Typeface.DEFAULT, Typeface.BOLD_ITALIC);
-                bold = true;
-                italic = true;
-                break;
-            case Constants.TEXT_STYLE_BOLD:
-                mTextPreview.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
-                bold = true;
-                italic = false;
-                break;
-            case Constants.TEXT_STYLE_ITALIC:
-                mTextPreview.setTypeface(Typeface.DEFAULT, Typeface.ITALIC);
-                bold = false;
-                italic = true;
-                break;
-            default:
-                mTextPreview.setTypeface(Typeface.DEFAULT, Typeface.NORMAL);
-                bold = false;
-                italic = false;
-                break;
+                .getInt(Constants.TEXT_STYLE_KEY, Typeface.BOLD);
+        String textFontCode = mSharedPreferences
+                .getString(Constants.TEXT_FONT_KEY, Font.DEFAULT.getFontCode());
+        Font font = Font.findFontByCode(textFontCode);
+        mTextPreview.setTypeface(font.getTypeface(getApplicationContext(), textStyle));
+        mTextPreview.setText(mTextPreview.getText());
+        mDatePreview.setTypeface(font.getTypeface(getApplicationContext(), textStyle));
+
+        // The style options are only needed to be updated on a font change and the first time the
+        // activity loads
+        if (updateStyleSelector) {
+            mStyleSpinner.setSelection(textStyle);
+            StyleAdapter styleAdapter = (StyleAdapter) mStyleSpinner.getAdapter();
+            styleAdapter.setSelectedFont(font);
         }
-        mBoldCheckBox.setChecked(bold);
-        mItalicCheckBox.setChecked(italic);
+        if (updateFontSelector) {
+            FontAdapter fontAdapter = (FontAdapter) mTextFontSpinner.getAdapter();
+            int position = fontAdapter.getPosition(font);
+            mTextFontSpinner.setSelection(position);
+        }
+    }
+
+    private void loadDatePreview(boolean updateSelector) {
+        boolean showDate = mSharedPreferences.getBoolean(Constants.DATE_KEY, false);
+        if (showDate) {
+            mDatePreview.setVisibility(View.VISIBLE);
+        } else {
+            mDatePreview.setVisibility(View.GONE);
+        }
+
+        if (updateSelector) {
+            mDateSwitch.setChecked(showDate);
+        }
     }
 
     /**

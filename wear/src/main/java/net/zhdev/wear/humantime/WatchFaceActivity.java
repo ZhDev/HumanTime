@@ -16,7 +16,8 @@
 
 package net.zhdev.wear.humantime;
 
-import net.zhdev.humantime.shared.Constants;
+import net.zhdev.wear.humantime.shared.Constants;
+import net.zhdev.wear.humantime.shared.Font;
 
 import android.app.Activity;
 import android.content.Context;
@@ -31,8 +32,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.TypedValue;
 import android.view.Display;
-import android.view.Gravity;
-import android.widget.FrameLayout;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -53,11 +55,15 @@ import java.io.InputStream;
 public class WatchFaceActivity extends Activity implements DisplayManager.DisplayListener,
         SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private FrameLayout mWatchView;
+    private LinearLayout mWatchContainer;
 
-    private HumanTextClock mWatchText;
+    private HumanTextClock mWatchTime;
+
+    private ShortDateClock mWatchDate;
 
     private boolean mDisplayDimmed;
+
+    private DisplayManager mDisplayManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,8 +76,12 @@ public class WatchFaceActivity extends Activity implements DisplayManager.Displa
         getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE)
                 .registerOnSharedPreferenceChangeListener(this);
 
-        mWatchView = (FrameLayout) findViewById(R.id.watch_view);
-        mWatchText = (HumanTextClock) findViewById(R.id.watch_text);
+        mDisplayDimmed = false;
+        mDisplayManager = (DisplayManager) getSystemService(Context.DISPLAY_SERVICE);
+
+        mWatchContainer = (LinearLayout) findViewById(R.id.watch_view);
+        mWatchTime = (HumanTextClock) findViewById(R.id.watch_time);
+        mWatchDate = (ShortDateClock) findViewById(R.id.watch_date);
 
         loadSavedValues();
     }
@@ -97,7 +107,8 @@ public class WatchFaceActivity extends Activity implements DisplayManager.Displa
         loadTextPosition(preferences);
         loadTextShadow(preferences);
         loadTextSize(preferences);
-        loadTextStyle(preferences);
+        loadTextStyleAndFont(preferences);
+        loadDate(preferences);
     }
 
     @Override
@@ -112,31 +123,24 @@ public class WatchFaceActivity extends Activity implements DisplayManager.Displa
 
     @Override
     public void onDisplayChanged(int displayId) {
-        DisplayManager displayManager = (DisplayManager) getSystemService(Context.DISPLAY_SERVICE);
-        int state = displayManager.getDisplay(displayId).getState();
+        int state = mDisplayManager.getDisplay(displayId).getState();
 
         switch (state) {
             case Display.STATE_DOZING: // The UI is simplified
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mWatchView.setBackground(new ColorDrawable(Color.BLACK));
-                        mWatchText.setTextColor(Color.WHITE);
-                        mWatchText.setShadowLayer(0.0F, 0.0F, 0.0F, Color.BLACK);
-                    }
-                });
+                mWatchContainer.setBackground(null);
+                mWatchTime.setTextColor(Color.WHITE);
+                shadowVisible(mWatchTime, false);
+                if (mWatchDate.getVisibility() == View.VISIBLE) {
+                    mWatchDate.setTextColor(Color.WHITE);
+                    shadowVisible(mWatchDate, false);
+                }
                 mDisplayDimmed = true;
                 break;
             case Display.STATE_OFF:
                 break;
             default:
                 mDisplayDimmed = false;
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        loadSavedValues();
-                    }
-                });
+                loadSavedValues();
                 break;
         }
     }
@@ -156,8 +160,9 @@ public class WatchFaceActivity extends Activity implements DisplayManager.Displa
                 loadBackground(sharedPreferences);
             } else if (Constants.TEXT_COLOR_KEY.equals(key)) {
                 loadTextColor(sharedPreferences);
-            } else if (Constants.TEXT_STYLE_KEY.equals(key)) {
-                loadTextStyle(sharedPreferences);
+            } else if (Constants.TEXT_STYLE_KEY.equals(key)
+                    || Constants.TEXT_FONT_KEY.equals(key)) {
+                loadTextStyleAndFont(sharedPreferences);
             } else if (Constants.TEXT_SHADOW_KEY.equals(key)) {
                 loadTextShadow(sharedPreferences);
             } else if (Constants.TEXT_SIZE_KEY.equals(key)) {
@@ -166,6 +171,8 @@ public class WatchFaceActivity extends Activity implements DisplayManager.Displa
                 loadTextPosition(sharedPreferences);
             } else if (Constants.TEXT_CASE_KEY.equals(key)) {
                 loadTextCase(sharedPreferences);
+            } else if (Constants.DATE_KEY.equals(key)) {
+                loadDate(sharedPreferences);
             }
         }
     }
@@ -189,87 +196,70 @@ public class WatchFaceActivity extends Activity implements DisplayManager.Displa
                 drawable = new ColorDrawable(color);
             }
         }
-        mWatchView.setBackground(drawable);
+        mWatchContainer.setBackground(drawable);
     }
 
     private void loadTextCase(SharedPreferences preferences) {
         int textCase = preferences.getInt(Constants.TEXT_CASE_KEY, Constants.TEXT_CASE_NO_CAPS);
-        mWatchText.setTextCase(textCase);
+        mWatchTime.setTextCase(textCase);
     }
 
     private void loadTextColor(SharedPreferences preferences) {
         int textColor = preferences.getInt(Constants.TEXT_COLOR_KEY, Color.WHITE);
-        mWatchText.setTextColor(textColor);
+        mWatchTime.setTextColor(textColor);
+        mWatchDate.setTextColor(textColor);
     }
 
     private void loadTextPosition(SharedPreferences preferences) {
         int textPosition = preferences.getInt(Constants.TEXT_POSITION_KEY,
                 Constants.TEXT_POSITION_CENTER_CENTER);
-        int gravity;
-        switch (textPosition) {
-            case Constants.TEXT_POSITION_TOP_LEFT:
-                gravity = Gravity.TOP | Gravity.LEFT;
-                break;
-            case Constants.TEXT_POSITION_TOP_CENTER:
-                gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
-                break;
-            case Constants.TEXT_POSITION_TOP_RIGHT:
-                gravity = Gravity.TOP | Gravity.RIGHT;
-                break;
-            case Constants.TEXT_POSITION_CENTER_LEFT:
-                gravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
-                break;
-            case Constants.TEXT_POSITION_CENTER_CENTER:
-                gravity = Gravity.CENTER;
-                break;
-            case Constants.TEXT_POSITION_CENTER_RIGHT:
-                gravity = Gravity.CENTER_VERTICAL | Gravity.RIGHT;
-                break;
-            case Constants.TEXT_POSITION_BOTTOM_LEFT:
-                gravity = Gravity.BOTTOM | Gravity.LEFT;
-                break;
-            case Constants.TEXT_POSITION_BOTTOM_CENTER:
-                gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
-                break;
-            case Constants.TEXT_POSITION_BOTTOM_RIGHT:
-                gravity = Gravity.BOTTOM | Gravity.RIGHT;
-                break;
-            default:
-                gravity = Gravity.CENTER;
-                break;
-        }
-        mWatchText.setGravity(gravity);
+        int gravity = Constants.positionToGravity(textPosition);
+        mWatchTime.setGravity(gravity);
+        mWatchDate.setGravity(gravity);
+        mWatchContainer.setGravity(gravity);
     }
 
     private void loadTextShadow(SharedPreferences preferences) {
         boolean showShadow = preferences.getBoolean(Constants.TEXT_SHADOW_KEY, true);
-        if (showShadow) {
-            mWatchText.setShadowLayer(3.0F, 3.0F, 3.0F, Color.BLACK);
+        shadowVisible(mWatchTime, showShadow);
+        shadowVisible(mWatchDate, showShadow);
+    }
+
+    private void shadowVisible(TextView textView, boolean visible) {
+        if (visible) {
+            textView.setShadowLayer(3.0F, 3.0F, 3.0F, Color.BLACK);
         } else {
-            mWatchText.setShadowLayer(0.0F, 0.0F, 0.0F, Color.BLACK);
+            textView.setShadowLayer(0.0F, 0.0F, 0.0F, 0x00000000);
         }
     }
 
     private void loadTextSize(SharedPreferences preferences) {
         float textSize = preferences.getFloat(Constants.TEXT_SIZE_KEY, Constants.TEXT_SIZE_LARGE);
-        mWatchText.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
+        mWatchTime.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
     }
 
-    private void loadTextStyle(SharedPreferences preferences) {
-        int textStyle = preferences.getInt(Constants.TEXT_STYLE_KEY, Constants.TEXT_STYLE_BOLD);
-        switch (textStyle) {
-            case Constants.TEXT_STYLE_BOLD_ITALIC:
-                mWatchText.setTypeface(Typeface.DEFAULT, Typeface.BOLD_ITALIC);
-                break;
-            case Constants.TEXT_STYLE_BOLD:
-                mWatchText.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
-                break;
-            case Constants.TEXT_STYLE_ITALIC:
-                mWatchText.setTypeface(Typeface.DEFAULT, Typeface.ITALIC);
-                break;
-            default:
-                mWatchText.setTypeface(Typeface.DEFAULT, Typeface.NORMAL);
-                break;
+    private void loadTextStyleAndFont(SharedPreferences preferences) {
+        int textStyle = preferences.getInt(Constants.TEXT_STYLE_KEY, Typeface.BOLD);
+        String textFontCode = preferences
+                .getString(Constants.TEXT_FONT_KEY, Font.DEFAULT.getFontCode());
+        Font font = Font.findFontByCode(textFontCode);
+        // A change of font implies a change of style, if we receive the change of font first we
+        // might be in an invalid state
+        if (font.hasStyle(textStyle)) {
+            Typeface typeface = font.getTypeface(getApplicationContext(), textStyle);
+            mWatchTime.setTypeface(typeface);
+            mWatchTime.setText(mWatchTime.getText());
+            mWatchDate.setTypeface(typeface);
+            mWatchDate.setText(mWatchDate.getText());
+        }
+    }
+
+    private void loadDate(SharedPreferences preferences) {
+        boolean showDate = preferences.getBoolean(Constants.DATE_KEY, false);
+        if (showDate) {
+            mWatchDate.setVisibility(View.VISIBLE);
+        } else {
+            mWatchDate.setVisibility(View.GONE);
         }
     }
 }

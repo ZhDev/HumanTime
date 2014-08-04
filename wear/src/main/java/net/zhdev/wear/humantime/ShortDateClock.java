@@ -16,36 +16,32 @@
 
 package net.zhdev.wear.humantime;
 
-import net.zhdev.wear.humantime.shared.Constants;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.PowerManager;
+import android.text.format.DateFormat;
 import android.util.AttributeSet;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.TextView;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 import java.util.TimeZone;
 
-import me.grantland.widget.AutofitTextView;
-
 /**
- * <p><code>HumanTextClock</code> is a modified version of {@link android.widget.TextClock}. It can
- * display the time in a "human way", representing the time as a text string such as "quarter to
- * five". The widget listens for changes in the time and the time zone.</p>
- *
- * <p>It inherits from {@link me.grantland.widget.AutofitTextView} instead of
- * <code>TextView</code>,
- * so it can fit automatically within given bounds.</p>
+ * <code>ShortDateClock</code> is a modified version of {@link android.widget.TextClock}. It can
+ * display the a short, localized version of the date.
  *
  * @author Julio García Muñoz (ZhDev)
+ * @see net.zhdev.wear.humantime.HumanTextClock
  */
-public class HumanTextClock extends AutofitTextView {
+public class ShortDateClock extends TextView {
 
-    private static final String TIME_WAKE_LOCK_TAG = "time_wake_lock";
+    private static final String DATE_WAKE_LOCK_TAG = "date_wake_lock";
 
     private boolean mAttached;
 
@@ -70,11 +66,10 @@ public class HumanTextClock extends AutofitTextView {
         }
     };
 
-    private TimeConverter mTimeConverter;
-
-    private int mTextCase;
+    private SimpleDateFormat mFormatter;
 
     private PowerManager.WakeLock mWakeLock;
+
 
     /**
      * Creates a new clock using the default patterns for the current locale.
@@ -83,7 +78,7 @@ public class HumanTextClock extends AutofitTextView {
      *                access the current theme, resources, etc.
      */
     @SuppressWarnings("UnusedDeclaration")
-    public HumanTextClock(Context context) {
+    public ShortDateClock(Context context) {
         this(context, null);
     }
 
@@ -99,7 +94,7 @@ public class HumanTextClock extends AutofitTextView {
      * @param attrs   The attributes of the XML tag that is inflating the view
      */
     @SuppressWarnings("UnusedDeclaration")
-    public HumanTextClock(Context context, AttributeSet attrs) {
+    public ShortDateClock(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
@@ -115,23 +110,20 @@ public class HumanTextClock extends AutofitTextView {
      *                 either be an attribute resource, whose value will be retrieved
      *                 from the current theme, or an explicit style resource
      */
-    public HumanTextClock(Context context, AttributeSet attrs, int defStyle) {
+    public ShortDateClock(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init(context);
     }
 
     private void init(Context context) {
-        // The View doesn't work well in edit mode, it's better to use tools:text in the layout
-        // editor
         if (isInEditMode()) {
             return;
         }
         PowerManager powerManager = ((PowerManager) context
                 .getSystemService(Context.POWER_SERVICE));
-        mWakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TIME_WAKE_LOCK_TAG);
+        mWakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, DATE_WAKE_LOCK_TAG);
 
         setText("");
-        mTimeConverter = new TimeConverter(context.getResources());
         mCurrentText = "";
         mAnimationIn = AnimationUtils.loadAnimation(context, R.anim.push_in_right);
         mAnimationIn.setAnimationListener(new Animation.AnimationListener() {
@@ -159,15 +151,7 @@ public class HumanTextClock extends AutofitTextView {
 
             @Override
             public void onAnimationEnd(Animation animation) {
-                int pastMaxLines = countLines(getText().toString());
-                int newMaxLines = countLines(mCurrentText);
-                if (pastMaxLines > newMaxLines) {
-                    setText(mCurrentText);
-                    setMaxLines(newMaxLines);
-                } else {
-                    setMaxLines(newMaxLines);
-                    setText(mCurrentText);
-                }
+                setText(mCurrentText);
                 startAnimation(mAnimationIn);
             }
 
@@ -176,15 +160,9 @@ public class HumanTextClock extends AutofitTextView {
 
             }
         });
-        mTextCase = Constants.TEXT_CASE_NO_CAPS;
-        createTime(mTimeZone);
-    }
-
-    private int countLines(String text) {
-        if (text == null) {
-            return 0;
-        }
-        return text.length() - text.replace("\n", "").length() + 1;
+        Locale locale = context.getResources().getConfiguration().locale;
+        String datePattern = DateFormat.getBestDateTimePattern(locale, "cccd");
+        mFormatter = new SimpleDateFormat(datePattern, locale);
     }
 
     private void createTime(String timeZone) {
@@ -247,47 +225,20 @@ public class HumanTextClock extends AutofitTextView {
      */
     private void onTimeChanged() {
         mTime.setTimeInMillis(System.currentTimeMillis());
-
-        String time = mTimeConverter
-                .convertTime(mTime.get(Calendar.HOUR), mTime.get(Calendar.MINUTE))
-                .replace(' ', '\n');
-
-        // We assume that the time patterns in strings.xml are always in lowercase
-        switch (mTextCase) {
-            case Constants.TEXT_CASE_NO_CAPS:
-                break;
-            case Constants.TEXT_CASE_ALL_CAPS:
-                time = time.toUpperCase();
-                break;
-            case Constants.TEXT_CASE_FIRST_CAP:
-                time = time.substring(0, 1).toUpperCase() + time.substring(1);
-                break;
-        }
-
-        setTime(time);
+        setDate(mFormatter.format(mTime.getTime()));
     }
 
     /**
-     * Updates the time in the <code>View</code> if it is different for the one currently being
+     * Updates the date in the <code>View</code> if it is different for the one currently being
      * displayed. It applies an animation for the transition.
      *
-     * @param time the text representing the new time
+     * @param date the text representing the new date
      */
-    private void setTime(String time) {
-        if (!time.equals(mCurrentText)) {
-            mCurrentText = time;
+    private void setDate(String date) {
+        if (!date.equals(mCurrentText)) {
+            mCurrentText = date;
             mWakeLock.acquire();
             startAnimation(mAnimationOut);
-        }
-    }
-
-    /**
-     * @see net.zhdev.wear.humantime.shared.Constants
-     */
-    public void setTextCase(int textCase) {
-        mTextCase = textCase;
-        if (mAttached) {
-            onTimeChanged();
         }
     }
 
@@ -300,9 +251,6 @@ public class HumanTextClock extends AutofitTextView {
 
             registerReceiver();
             createTime(mTimeZone);
-            if (isInEditMode()) {
-                return;
-            }
             onTimeChanged();
         }
     }
@@ -316,4 +264,5 @@ public class HumanTextClock extends AutofitTextView {
             mAttached = false;
         }
     }
+
 }

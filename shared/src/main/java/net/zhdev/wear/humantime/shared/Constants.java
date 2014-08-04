@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package net.zhdev.humantime.shared;
+package net.zhdev.wear.humantime.shared;
+
+import android.view.Gravity;
 
 /**
  * This class provides a set of common constants shared by both the mobile app and the wearable
@@ -41,14 +43,6 @@ public final class Constants {
     public static final String TEXT_STYLE_KEY = "text_style";
 
     public static final String TEXT_STYLE_PATH = "/text_style";
-
-    public static final int TEXT_STYLE_NORMAL = 0;
-
-    public static final int TEXT_STYLE_BOLD = 1;
-
-    public static final int TEXT_STYLE_ITALIC = 2;
-
-    public static final int TEXT_STYLE_BOLD_ITALIC = 3;
 
     public static final String TEXT_SHADOW_KEY = "text_shadow";
 
@@ -108,4 +102,36 @@ public final class Constants {
 
     public static final int BACKGROUND_TYPE_IMAGE = 1;
 
+    public static final String TEXT_FONT_KEY = "text_font";
+
+    public static final String TEXT_FONT_PATH = "/text_font";
+
+    public static final String DATE_KEY = "date";
+
+    public static final String DATE_PATH = "/date";
+
+    public static final int positionToGravity(int position) {
+        switch (position) {
+            case Constants.TEXT_POSITION_TOP_LEFT:
+                return Gravity.TOP | Gravity.LEFT;
+            case Constants.TEXT_POSITION_TOP_CENTER:
+                return Gravity.TOP | Gravity.CENTER_HORIZONTAL;
+            case Constants.TEXT_POSITION_TOP_RIGHT:
+                return Gravity.TOP | Gravity.RIGHT;
+            case Constants.TEXT_POSITION_CENTER_LEFT:
+                return Gravity.CENTER_VERTICAL | Gravity.LEFT;
+            case Constants.TEXT_POSITION_CENTER_CENTER:
+                return Gravity.CENTER;
+            case Constants.TEXT_POSITION_CENTER_RIGHT:
+                return Gravity.CENTER_VERTICAL | Gravity.RIGHT;
+            case Constants.TEXT_POSITION_BOTTOM_LEFT:
+                return Gravity.BOTTOM | Gravity.LEFT;
+            case Constants.TEXT_POSITION_BOTTOM_CENTER:
+                return Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
+            case Constants.TEXT_POSITION_BOTTOM_RIGHT:
+                return Gravity.BOTTOM | Gravity.RIGHT;
+            default:
+                return Gravity.CENTER;
+        }
+    }
 }

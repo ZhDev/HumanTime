@@ -10,23 +10,22 @@
     <string name="text">Texto</string>
     <string name="style">Estilo</string>
     <string name="shadow">Sombra</string>
-    <string name="bold">Negrita</string>
-    <string name="italic">Cursiva</string>
     <string name="size">Tamaño</string>
     <string name="position">Posición</string>
     <string name="caps">Mayúsculas</string>
-
-    <string-array name="text_sizes">
-        <item>Grande</item>
-        <item>Mediano</item>
-        <item>Pequeño</item>
-        <item>Extra pequeño</item>
-    </string-array>
-
-    <string-array name="text_caps">
-        <item>ninguna</item>
-        <item>TODAS</item>
-        <item>Primera</item>
-    </string-array>
+    <string name="font">Fuente</string>
+    <string name="normal">Normal</string>
+    <string name="bold"><b>Bold</b></string>
+    <string name="italic"><i>Italic</i></string>
+    <string name="bold_italic"><b><i>Bold+Italic</i></b></string>
+    <string name="large">Grande</string>
+    <string name="medium">Mediano</string>
+    <string name="small">Pequeño</string>
+    <string name="extra_small">Extra pequeño</string>
+    <string name="no_caps">ninguna</string>
+    <string name="all_caps">TODAS</string>
+    <string name="first_cap">Primera</string>
+    <string name="date">Fecha</string>
+    <string name="sample_date">fecha</string>
 
 </resources>
