@@ -42,5 +42,13 @@
     <string name="no_caps">none</string>
     <string name="all_caps">ALL</string>
     <string name="first_cap">First</string>
+    <string name="date">Date</string>
+    <string name="sample_date">date</string>
+
+    <string-array name="text_caps">
+        <item>none</item>
+        <item>ALL</item>
+        <item>First</item>
+    </string-array>
 
 </resources>

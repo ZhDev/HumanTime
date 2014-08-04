@@ -25,5 +25,13 @@
     <string name="no_caps">ninguna</string>
     <string name="all_caps">TODAS</string>
     <string name="first_cap">Primera</string>
+    <string name="date">Fecha</string>
+    <string name="sample_date">fecha</string>
+
+    <string-array name="text_caps">
+        <item>ninguna</item>
+        <item>TODAS</item>
+        <item>Primera</item>
+    </string-array>
 
 </resources>

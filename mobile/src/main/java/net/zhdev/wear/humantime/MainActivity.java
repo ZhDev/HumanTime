@@ -54,8 +54,10 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Switch;
+import android.widget.TextView;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
@@ -87,7 +89,11 @@ public class MainActivity extends WearApiActivity
 
     private AutofitTextView mTextPreview;
 
-    private Spinner mTextSizeSpinner;
+    private TextView mDatePreview;
+
+    private LinearLayout mContainerPreview;
+
+    private Spinner mSizeSpinner;
 
     private Spinner mTextCaseSpinner;
 
@@ -105,6 +111,8 @@ public class MainActivity extends WearApiActivity
 
     private Spinner mStyleSpinner;
 
+    private Switch mDateSwitch;
+
     private static Asset createAssetFromBitmap(Bitmap bitmap) {
         final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteStream);
@@ -120,6 +128,8 @@ public class MainActivity extends WearApiActivity
         mSharedPreferences = getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE);
 
         mTextPreview = (AutofitTextView) findViewById(R.id.text_preview);
+        mDatePreview = (TextView) findViewById(R.id.date_preview);
+        mContainerPreview = (LinearLayout) findViewById(R.id.container_preview);
 
         mBackgroundColorButton = (ImageButton) findViewById(R.id.bt_background_color);
         mBackgroundColorButton.setOnClickListener(new View.OnClickListener() {
@@ -159,14 +169,14 @@ public class MainActivity extends WearApiActivity
             }
         });
 
-        mTextSizeSpinner = (Spinner) findViewById(R.id.sp_size);
+        mSizeSpinner = (Spinner) findViewById(R.id.sp_size);
         SizeAdapter sizeAdapter = new SizeAdapter(this, android.R.layout.simple_spinner_item);
         sizeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mTextSizeSpinner.setAdapter(sizeAdapter);
+        mSizeSpinner.setAdapter(sizeAdapter);
 
-        mTextSizeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        mSizeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             /**
-             * Used to prevent the callback being fired after onCreate
+             * Used to prevent the callback being fired after onCreate, setSelection() is blocking
              */
             private boolean firstCall = true;
 
@@ -196,7 +206,7 @@ public class MainActivity extends WearApiActivity
 
         mStyleSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             /**
-             * Used to prevent the callback being fired after onCreate
+             * Used to prevent the callback being fired after onCreate, setSelection() is blocking
              */
             private boolean firstCall = true;
 
@@ -220,23 +230,6 @@ public class MainActivity extends WearApiActivity
         });
 
         mShadowSwitch = (Switch) findViewById(R.id.sw_shadow);
-        mShadowSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            /**
-             * Used to prevent the callback being fired after onCreate
-             */
-            private boolean firstCall = true;
-
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (firstCall) {
-                    firstCall = false;
-                } else {
-                    storePreference(Constants.TEXT_SHADOW_KEY, isChecked);
-                    syncData(Constants.TEXT_SHADOW_PATH, Constants.TEXT_SHADOW_KEY, isChecked);
-                    loadTextShadowPreview(false);
-                }
-            }
-        });
 
         mPositionButton = (ImageButton) findViewById(R.id.bt_position);
         mPositionButton.setOnClickListener(new View.OnClickListener() {
@@ -258,7 +251,7 @@ public class MainActivity extends WearApiActivity
         mTextCaseSpinner.setAdapter(caseAdapter);
         mTextCaseSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             /**
-             * Used to prevent the callback being fired after onCreate
+             * Used to prevent the callback being fired after onCreate, setSelection() is blocking
              */
             private boolean firstCall = true;
 
@@ -287,7 +280,7 @@ public class MainActivity extends WearApiActivity
         mTextFontSpinner.setAdapter(fontAdapter);
         mTextFontSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             /**
-             * Used to prevent the callback being fired after onCreate
+             * Used to prevent the callback being fired after onCreate, setSelection() is blocking
              */
             private boolean firstCall = true;
 
@@ -312,8 +305,33 @@ public class MainActivity extends WearApiActivity
             }
         });
 
+        mDateSwitch = (Switch) findViewById(R.id.sw_date);
+
         initWithStoredValues();
         setElementsEnabled(false);
+
+        // Switches can be initialized before having an OnCheckedChangeListener. Their callbacks
+        // won't be triggered because the calls to setChecked() are blocking, whereas setSelection()
+        // for Spinners are not.
+
+        mShadowSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                storePreference(Constants.TEXT_SHADOW_KEY, isChecked);
+                syncData(Constants.TEXT_SHADOW_PATH, Constants.TEXT_SHADOW_KEY, isChecked);
+                loadTextShadowPreview(false);
+            }
+        });
+
+        mDateSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                storePreference(Constants.DATE_KEY, isChecked);
+                syncData(Constants.DATE_PATH, Constants.DATE_KEY, isChecked);
+                loadDatePreview(false);
+            }
+        });
     }
 
     @Override
@@ -372,11 +390,12 @@ public class MainActivity extends WearApiActivity
         setImageButtonEnabled(mBackgroundImageButton, enabled);
         setImageButtonEnabled(mTextColorButton, enabled);
         setImageButtonEnabled(mPositionButton, enabled);
-        mTextSizeSpinner.setEnabled(enabled);
+        mSizeSpinner.setEnabled(enabled);
         mStyleSpinner.setEnabled(enabled);
         mShadowSwitch.setEnabled(enabled);
         mTextCaseSpinner.setEnabled(enabled);
         mTextFontSpinner.setEnabled(enabled);
+        mDatePreview.setEnabled(enabled);
     }
 
     /**
@@ -410,6 +429,7 @@ public class MainActivity extends WearApiActivity
         loadTextShadowPreview(true);
         loadTextSizePreview(true);
         loadTextStyleAndFontPreview(true, true);
+        loadDatePreview(true);
     }
 
     private void storePreference(String key, Object value) {
@@ -423,7 +443,8 @@ public class MainActivity extends WearApiActivity
             editor.putInt(key, (Integer) value);
         } else if (Constants.BACKGROUND_ASSET_LAST_CHANGED_KEY.equals(key)) {
             editor.putLong(key, (Long) value);
-        } else if (Constants.TEXT_SHADOW_KEY.equals(key)) {
+        } else if (Constants.TEXT_SHADOW_KEY.equals(key)
+                || Constants.DATE_KEY.equals(key)) {
             editor.putBoolean(key, (Boolean) value);
         } else if (Constants.TEXT_SIZE_KEY.equals(key)) {
             editor.putFloat(key, (Float) value);
@@ -484,7 +505,7 @@ public class MainActivity extends WearApiActivity
                 drawable = new ColorDrawable(color);
             }
         }
-        mTextPreview.setBackground(drawable);
+        mContainerPreview.setBackground(drawable);
     }
 
     private void loadTextCasePreview(boolean updateSelector) {
@@ -511,12 +532,16 @@ public class MainActivity extends WearApiActivity
     private void loadTextColorPreview() {
         int textColor = mSharedPreferences.getInt(Constants.TEXT_COLOR_KEY, Color.WHITE);
         mTextPreview.setTextColor(textColor);
+        mDatePreview.setTextColor(textColor);
     }
 
     private void loadTextPositionPreview() {
         int textPosition = mSharedPreferences.getInt(Constants.TEXT_POSITION_KEY,
                 Constants.TEXT_POSITION_CENTER_CENTER);
-        mTextPreview.setGravity(Constants.positionToGravity(textPosition));
+        int gravity = Constants.positionToGravity(textPosition);
+        mTextPreview.setGravity(gravity);
+        mDatePreview.setGravity(gravity);
+        mContainerPreview.setGravity(gravity);
         LevelListDrawable levelListDrawable = (LevelListDrawable) mPositionButton.getDrawable();
         // The position matches the order in the LevelListDrawable
         levelListDrawable.setLevel(textPosition);
@@ -526,8 +551,10 @@ public class MainActivity extends WearApiActivity
         boolean showShadow = mSharedPreferences.getBoolean(Constants.TEXT_SHADOW_KEY, true);
         if (showShadow) {
             mTextPreview.setShadowLayer(3.0F, 3.0F, 3.0F, Color.BLACK);
+            mDatePreview.setShadowLayer(3.0F, 3.0F, 3.0F, Color.BLACK);
         } else {
             mTextPreview.setShadowLayer(0.0F, 0.0F, 0.0F, Color.BLACK);
+            mDatePreview.setShadowLayer(0.0F, 0.0F, 0.0F, Color.BLACK);
         }
         if (updateSelector) {
             mShadowSwitch.setChecked(showShadow);
@@ -538,15 +565,17 @@ public class MainActivity extends WearApiActivity
         float textSize = mSharedPreferences
                 .getFloat(Constants.TEXT_SIZE_KEY, Constants.TEXT_SIZE_LARGE);
         mTextPreview.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
+        //mTextPreview.setText(mTextPreview.getText());
+        // mDatePreview.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize / 2.0F + 5.0F);
         if (updateSelector) {
             if (textSize == Constants.TEXT_SIZE_LARGE) {
-                mTextSizeSpinner.setSelection(0);
+                mSizeSpinner.setSelection(0);
             } else if (textSize == Constants.TEXT_SIZE_MEDIUM) {
-                mTextSizeSpinner.setSelection(1);
+                mSizeSpinner.setSelection(1);
             } else if (textSize == Constants.TEXT_SIZE_SMALL) {
-                mTextSizeSpinner.setSelection(2);
+                mSizeSpinner.setSelection(2);
             } else if (textSize == Constants.TEXT_SIZE_EXTRA_SMALL) {
-                mTextSizeSpinner.setSelection(3);
+                mSizeSpinner.setSelection(3);
             }
         }
     }
@@ -560,6 +589,7 @@ public class MainActivity extends WearApiActivity
         Font font = Font.findFontByCode(textFontCode);
         mTextPreview.setTypeface(font.getTypeface(getApplicationContext(), textStyle));
         mTextPreview.setText(mTextPreview.getText());
+        mDatePreview.setTypeface(font.getTypeface(getApplicationContext(), textStyle));
 
         // The style options are only needed to be updated on a font change and the first time the
         // activity loads
@@ -572,6 +602,19 @@ public class MainActivity extends WearApiActivity
             FontAdapter fontAdapter = (FontAdapter) mTextFontSpinner.getAdapter();
             int position = fontAdapter.getPosition(font);
             mTextFontSpinner.setSelection(position);
+        }
+    }
+
+    private void loadDatePreview(boolean updateSelector) {
+        boolean showDate = mSharedPreferences.getBoolean(Constants.DATE_KEY, false);
+        if (showDate) {
+            mDatePreview.setVisibility(View.VISIBLE);
+        } else {
+            mDatePreview.setVisibility(View.GONE);
+        }
+
+        if (updateSelector) {
+            mDateSwitch.setChecked(showDate);
         }
     }
 

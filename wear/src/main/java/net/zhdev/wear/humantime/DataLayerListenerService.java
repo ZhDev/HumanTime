@@ -110,6 +110,9 @@ public class DataLayerListenerService extends WearableListenerService {
                 } else if (Constants.TEXT_FONT_PATH.equals(uriPath)) {
                     String textFontCode = dataMap.getString(Constants.TEXT_FONT_KEY);
                     editor.putString(Constants.TEXT_FONT_KEY, textFontCode);
+                } else if (Constants.DATE_PATH.equals(uriPath)) {
+                    boolean showDate = dataMap.getBoolean(Constants.DATE_KEY);
+                    editor.putBoolean(Constants.DATE_KEY, showDate);
                 }
 
                 editor.apply();
