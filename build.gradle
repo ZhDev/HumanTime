@@ -20,7 +20,7 @@ allprojects {
 
 ext {
     versionMajor = 1
-    versionMinor = 1
+    versionMinor = 2
     versionPatch = 0
-    versionBuild = 1
+    versionBuild = 0
 }
