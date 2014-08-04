@@ -34,6 +34,7 @@ import android.util.TypedValue;
 import android.view.Display;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -62,6 +63,8 @@ public class WatchFaceActivity extends Activity implements DisplayManager.Displa
 
     private boolean mDisplayDimmed;
 
+    private DisplayManager mDisplayManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,6 +75,9 @@ public class WatchFaceActivity extends Activity implements DisplayManager.Displa
 
         getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE)
                 .registerOnSharedPreferenceChangeListener(this);
+
+        mDisplayDimmed = false;
+        mDisplayManager = (DisplayManager) getSystemService(Context.DISPLAY_SERVICE);
 
         mWatchContainer = (LinearLayout) findViewById(R.id.watch_view);
         mWatchTime = (HumanTextClock) findViewById(R.id.watch_time);
@@ -117,35 +123,24 @@ public class WatchFaceActivity extends Activity implements DisplayManager.Displa
 
     @Override
     public void onDisplayChanged(int displayId) {
-        DisplayManager displayManager = (DisplayManager) getSystemService(Context.DISPLAY_SERVICE);
-        int state = displayManager.getDisplay(displayId).getState();
+        int state = mDisplayManager.getDisplay(displayId).getState();
 
         switch (state) {
             case Display.STATE_DOZING: // The UI is simplified
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mWatchContainer.setBackground(new ColorDrawable(Color.BLACK));
-                        mWatchTime.setTextColor(Color.WHITE);
-                        mWatchTime.setShadowLayer(0.0F, 0.0F, 0.0F, Color.BLACK);
-                        if (mWatchDate.getVisibility() == View.VISIBLE) {
-                            mWatchDate.setTextColor(Color.WHITE);
-                            mWatchDate.setShadowLayer(0.0F, 0.0F, 0.0F, Color.BLACK);
-                        }
-                    }
-                });
+                mWatchContainer.setBackground(null);
+                mWatchTime.setTextColor(Color.WHITE);
+                shadowVisible(mWatchTime, false);
+                if (mWatchDate.getVisibility() == View.VISIBLE) {
+                    mWatchDate.setTextColor(Color.WHITE);
+                    shadowVisible(mWatchDate, false);
+                }
                 mDisplayDimmed = true;
                 break;
             case Display.STATE_OFF:
                 break;
             default:
                 mDisplayDimmed = false;
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        loadSavedValues();
-                    }
-                });
+                loadSavedValues();
                 break;
         }
     }
@@ -226,12 +221,15 @@ public class WatchFaceActivity extends Activity implements DisplayManager.Displa
 
     private void loadTextShadow(SharedPreferences preferences) {
         boolean showShadow = preferences.getBoolean(Constants.TEXT_SHADOW_KEY, true);
-        if (showShadow) {
-            mWatchTime.setShadowLayer(3.0F, 3.0F, 3.0F, Color.BLACK);
-            mWatchDate.setShadowLayer(3.0F, 3.0F, 3.0F, Color.BLACK);
+        shadowVisible(mWatchTime, showShadow);
+        shadowVisible(mWatchDate, showShadow);
+    }
+
+    private void shadowVisible(TextView textView, boolean visible) {
+        if (visible) {
+            textView.setShadowLayer(3.0F, 3.0F, 3.0F, Color.BLACK);
         } else {
-            mWatchTime.setShadowLayer(0.0F, 0.0F, 0.0F, Color.BLACK);
-            mWatchDate.setShadowLayer(0.0F, 0.0F, 0.0F, Color.BLACK);
+            textView.setShadowLayer(0.0F, 0.0F, 0.0F, 0x00000000);
         }
     }
 
@@ -248,9 +246,10 @@ public class WatchFaceActivity extends Activity implements DisplayManager.Displa
         // A change of font implies a change of style, if we receive the change of font first we
         // might be in an invalid state
         if (font.hasStyle(textStyle)) {
-            mWatchTime.setTypeface(font.getTypeface(getApplicationContext(), textStyle));
+            Typeface typeface = font.getTypeface(getApplicationContext(), textStyle);
+            mWatchTime.setTypeface(typeface);
             mWatchTime.setText(mWatchTime.getText());
-            mWatchDate.setTypeface(font.getTypeface(getApplicationContext(), textStyle));
+            mWatchDate.setTypeface(typeface);
             mWatchDate.setText(mWatchDate.getText());
         }
     }

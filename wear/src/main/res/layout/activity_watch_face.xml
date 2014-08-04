@@ -29,6 +29,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
+        android:paddingBottom="5dp"
+        android:paddingTop="5dp"
         tools:background="@android:color/holo_blue_dark"
         tools:gravity="center"
         wear:layout_box="all">
@@ -37,10 +39,10 @@
             android:id="@+id/watch_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="15sp"
-            tools:gravity="center"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
+            android:textSize="15sp"
+            tools:gravity="center"
             tools:textColor="@android:color/white"
             tools:textStyle="bold" />
 
@@ -48,9 +50,9 @@
             android:id="@+id/watch_time"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:maxLines="3"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:maxLines="3"
             android:textSize="30sp"
             tools:gravity="center"
             tools:text="twenty-fivee\npast\neleven"

@@ -20,6 +20,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.PowerManager;
 import android.text.format.DateFormat;
 import android.util.AttributeSet;
 import android.view.animation.Animation;
@@ -39,6 +40,8 @@ import java.util.TimeZone;
  * @see net.zhdev.wear.humantime.HumanTextClock
  */
 public class ShortDateClock extends TextView {
+
+    private static final String DATE_WAKE_LOCK_TAG = "date_wake_lock";
 
     private boolean mAttached;
 
@@ -64,6 +67,8 @@ public class ShortDateClock extends TextView {
     };
 
     private SimpleDateFormat mFormatter;
+
+    private PowerManager.WakeLock mWakeLock;
 
 
     /**
@@ -111,9 +116,32 @@ public class ShortDateClock extends TextView {
     }
 
     private void init(Context context) {
+        if (isInEditMode()) {
+            return;
+        }
+        PowerManager powerManager = ((PowerManager) context
+                .getSystemService(Context.POWER_SERVICE));
+        mWakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, DATE_WAKE_LOCK_TAG);
+
         setText("");
         mCurrentText = "";
         mAnimationIn = AnimationUtils.loadAnimation(context, R.anim.push_in_right);
+        mAnimationIn.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                mWakeLock.release();
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
         mAnimationOut = AnimationUtils.loadAnimation(context, R.anim.push_out_left);
         mAnimationOut.setAnimationListener(new Animation.AnimationListener() {
             @Override
@@ -177,29 +205,6 @@ public class ShortDateClock extends TextView {
         onTimeChanged();
     }
 
-    @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
-
-        if (!mAttached) {
-            mAttached = true;
-
-            registerReceiver();
-            createTime(mTimeZone);
-            onTimeChanged();
-        }
-    }
-
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-
-        if (mAttached) {
-            unregisterReceiver();
-            mAttached = false;
-        }
-    }
-
     private void registerReceiver() {
         final IntentFilter filter = new IntentFilter();
 
@@ -220,19 +225,43 @@ public class ShortDateClock extends TextView {
      */
     private void onTimeChanged() {
         mTime.setTimeInMillis(System.currentTimeMillis());
-        setTime(mFormatter.format(mTime.getTime()));
+        setDate(mFormatter.format(mTime.getTime()));
     }
 
     /**
-     * Updates the time in the <code>View</code> if it is different for the one currently being
+     * Updates the date in the <code>View</code> if it is different for the one currently being
      * displayed. It applies an animation for the transition.
      *
-     * @param time the text representing the new time
+     * @param date the text representing the new date
      */
-    private void setTime(String time) {
-        if (!time.equals(mCurrentText)) {
-            mCurrentText = time;
+    private void setDate(String date) {
+        if (!date.equals(mCurrentText)) {
+            mCurrentText = date;
+            mWakeLock.acquire();
             startAnimation(mAnimationOut);
+        }
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+
+        if (!mAttached) {
+            mAttached = true;
+
+            registerReceiver();
+            createTime(mTimeZone);
+            onTimeChanged();
+        }
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+
+        if (mAttached) {
+            unregisterReceiver();
+            mAttached = false;
         }
     }
 

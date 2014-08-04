@@ -22,6 +22,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.PowerManager;
 import android.util.AttributeSet;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -43,6 +44,8 @@ import me.grantland.widget.AutofitTextView;
  * @author Julio García Muñoz (ZhDev)
  */
 public class HumanTextClock extends AutofitTextView {
+
+    private static final String TIME_WAKE_LOCK_TAG = "time_wake_lock";
 
     private boolean mAttached;
 
@@ -70,6 +73,8 @@ public class HumanTextClock extends AutofitTextView {
     private TimeConverter mTimeConverter;
 
     private int mTextCase;
+
+    private PowerManager.WakeLock mWakeLock;
 
     /**
      * Creates a new clock using the default patterns for the current locale.
@@ -121,10 +126,30 @@ public class HumanTextClock extends AutofitTextView {
         if (isInEditMode()) {
             return;
         }
+        PowerManager powerManager = ((PowerManager) context
+                .getSystemService(Context.POWER_SERVICE));
+        mWakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TIME_WAKE_LOCK_TAG);
+
         setText("");
         mTimeConverter = new TimeConverter(context.getResources());
         mCurrentText = "";
         mAnimationIn = AnimationUtils.loadAnimation(context, R.anim.push_in_right);
+        mAnimationIn.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                mWakeLock.release();
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
         mAnimationOut = AnimationUtils.loadAnimation(context, R.anim.push_out_left);
         mAnimationOut.setAnimationListener(new Animation.AnimationListener() {
             @Override
@@ -202,32 +227,6 @@ public class HumanTextClock extends AutofitTextView {
         onTimeChanged();
     }
 
-    @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
-
-        if (!mAttached) {
-            mAttached = true;
-
-            registerReceiver();
-            createTime(mTimeZone);
-            if (isInEditMode()) {
-                return;
-            }
-            onTimeChanged();
-        }
-    }
-
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-
-        if (mAttached) {
-            unregisterReceiver();
-            mAttached = false;
-        }
-    }
-
     private void registerReceiver() {
         final IntentFilter filter = new IntentFilter();
 
@@ -277,6 +276,7 @@ public class HumanTextClock extends AutofitTextView {
     private void setTime(String time) {
         if (!time.equals(mCurrentText)) {
             mCurrentText = time;
+            mWakeLock.acquire();
             startAnimation(mAnimationOut);
         }
     }
@@ -288,6 +288,32 @@ public class HumanTextClock extends AutofitTextView {
         mTextCase = textCase;
         if (mAttached) {
             onTimeChanged();
+        }
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+
+        if (!mAttached) {
+            mAttached = true;
+
+            registerReceiver();
+            createTime(mTimeZone);
+            if (isInEditMode()) {
+                return;
+            }
+            onTimeChanged();
+        }
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+
+        if (mAttached) {
+            unregisterReceiver();
+            mAttached = false;
         }
     }
 }
