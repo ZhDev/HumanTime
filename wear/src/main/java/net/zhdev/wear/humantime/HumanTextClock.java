@@ -134,7 +134,15 @@ public class HumanTextClock extends AutofitTextView {
 
             @Override
             public void onAnimationEnd(Animation animation) {
-                setText(mCurrentText);
+                int pastMaxLines = countLines(getText().toString());
+                int newMaxLines = countLines(mCurrentText);
+                if (pastMaxLines > newMaxLines) {
+                    setText(mCurrentText);
+                    setMaxLines(newMaxLines);
+                } else {
+                    setMaxLines(newMaxLines);
+                    setText(mCurrentText);
+                }
                 startAnimation(mAnimationIn);
             }
 
@@ -145,6 +153,13 @@ public class HumanTextClock extends AutofitTextView {
         });
         mTextCase = Constants.TEXT_CASE_NO_CAPS;
         createTime(mTimeZone);
+    }
+
+    private int countLines(String text) {
+        if (text == null) {
+            return 0;
+        }
+        return text.length() - text.replace("\n", "").length() + 1;
     }
 
     private void createTime(String timeZone) {
