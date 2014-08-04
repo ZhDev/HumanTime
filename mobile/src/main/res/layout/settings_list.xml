@@ -208,6 +208,13 @@
 
         </LinearLayout>
 
+        <Switch
+            android:id="@+id/sw_date"
+            android:layout_width="match_parent"
+            android:layout_height="?android:attr/listPreferredItemHeight"
+            android:checked="false"
+            android:text="@string/date"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
     </LinearLayout>
 </ScrollView>

@@ -106,6 +106,10 @@ public final class Constants {
 
     public static final String TEXT_FONT_PATH = "/text_font";
 
+    public static final String DATE_KEY = "date";
+
+    public static final String DATE_PATH = "/date";
+
     public static final int positionToGravity(int position) {
         switch (position) {
             case Constants.TEXT_POSITION_TOP_LEFT:

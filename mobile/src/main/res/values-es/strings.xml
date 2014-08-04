@@ -22,6 +22,8 @@
     <string name="medium">Mediano</string>
     <string name="small">Pequeño</string>
     <string name="extra_small">Extra pequeño</string>
+    <string name="date">Fecha</string>
+    <string name="sample_date">fecha</string>
 
     <string-array name="text_caps">
         <item>ninguna</item>
