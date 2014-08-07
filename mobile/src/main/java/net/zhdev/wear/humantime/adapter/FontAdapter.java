@@ -37,10 +37,15 @@ public class FontAdapter extends ArrayAdapter<Font> {
         super(context, resource);
         Font[] fonts = new Font[]{
                 Font.DEFAULT,
+                Font.ARVO,
+                Font.BITTER,
                 Font.CRAFTY_GIRLS,
                 Font.DANCING_SCRIPT,
+                Font.LATO,
                 Font.LOBSTER_TWO,
-                Font.PRESS_START_2P
+                Font.OPEN_SANS,
+                Font.PRESS_START_2P,
+                Font.UBUNTU_MONO
         };
         addAll(fonts);
     }
