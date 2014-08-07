@@ -20,7 +20,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.PowerManager;
 import android.text.format.DateFormat;
 import android.util.AttributeSet;
 import android.view.animation.Animation;
@@ -40,8 +39,6 @@ import java.util.TimeZone;
  * @see net.zhdev.wear.humantime.HumanTextClock
  */
 public class ShortDateClock extends TextView {
-
-    private static final String DATE_WAKE_LOCK_TAG = "date_wake_lock";
 
     private boolean mAttached;
 
@@ -66,10 +63,9 @@ public class ShortDateClock extends TextView {
         }
     };
 
+    private boolean mAnimationsEnabled;
+
     private SimpleDateFormat mFormatter;
-
-    private PowerManager.WakeLock mWakeLock;
-
 
     /**
      * Creates a new clock using the default patterns for the current locale.
@@ -119,29 +115,11 @@ public class ShortDateClock extends TextView {
         if (isInEditMode()) {
             return;
         }
-        PowerManager powerManager = ((PowerManager) context
-                .getSystemService(Context.POWER_SERVICE));
-        mWakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, DATE_WAKE_LOCK_TAG);
 
         setText("");
+        mAnimationsEnabled = true;
         mCurrentText = "";
         mAnimationIn = AnimationUtils.loadAnimation(context, R.anim.push_in_right);
-        mAnimationIn.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                mWakeLock.release();
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
         mAnimationOut = AnimationUtils.loadAnimation(context, R.anim.push_out_left);
         mAnimationOut.setAnimationListener(new Animation.AnimationListener() {
             @Override
@@ -237,9 +215,42 @@ public class ShortDateClock extends TextView {
     private void setDate(String date) {
         if (!date.equals(mCurrentText)) {
             mCurrentText = date;
-            mWakeLock.acquire();
-            startAnimation(mAnimationOut);
+            if (mAnimationsEnabled) {
+                startAnimation(mAnimationOut);
+            } else {
+                updateText();
+            }
         }
+    }
+
+    /**
+     * Updates the View with the new text stored, fixing the autofit proportions.
+     */
+    private void updateText() {
+        int pastMaxLines = countLines(getText().toString());
+        int newMaxLines = countLines(mCurrentText);
+        if ((pastMaxLines != newMaxLines)) {
+            if (pastMaxLines > newMaxLines) {
+                setText(mCurrentText);
+                setMaxLines(newMaxLines);
+            } else {
+                setMaxLines(newMaxLines);
+                setText(mCurrentText);
+            }
+        } else {
+            setText(mCurrentText);
+        }
+    }
+
+    private int countLines(String text) {
+        if (text == null) {
+            return 0;
+        }
+        return text.length() - text.replace("\n", "").length() + 1;
+    }
+
+    public void setAnimationsEnabled(boolean animationsEnabled) {
+        mAnimationsEnabled = animationsEnabled;
     }
 
     @Override

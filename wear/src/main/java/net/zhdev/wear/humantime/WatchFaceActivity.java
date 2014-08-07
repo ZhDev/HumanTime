@@ -134,12 +134,16 @@ public class WatchFaceActivity extends Activity implements DisplayManager.Displa
                     mWatchDate.setTextColor(Color.WHITE);
                     shadowVisible(mWatchDate, false);
                 }
+                mWatchTime.setAnimationsEnabled(false);
+                mWatchDate.setAnimationsEnabled(false);
                 mDisplayDimmed = true;
                 break;
             case Display.STATE_OFF:
                 break;
             default:
                 mDisplayDimmed = false;
+                mWatchTime.setAnimationsEnabled(true);
+                mWatchDate.setAnimationsEnabled(true);
                 loadSavedValues();
                 break;
         }
