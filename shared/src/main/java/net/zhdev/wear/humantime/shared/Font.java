@@ -39,6 +39,16 @@ public final class Font {
     public static final Font PRESS_START_2P = new Font("press-start-2p", "Press Start 2P", false,
             false, false);
 
+    public static final Font ARVO = new Font("arvo", "Arvo", true, true, true);
+
+    public static final Font BITTER = new Font("bitter", "Bitter", true, true, false);
+
+    public static final Font LATO = new Font("lato", "Lato", true, true, true);
+
+    public static final Font OPEN_SANS = new Font("open-sans", "Open Sans", true, true, true);
+
+    public static final Font UBUNTU_MONO = new Font("ubuntu-mono", "Ubuntu Mono", true, true, true);
+
     private final String mFontCode;
 
     private final String mDisplayName;
@@ -67,6 +77,16 @@ public final class Font {
             return LOBSTER_TWO;
         } else if (PRESS_START_2P.mFontCode.equals(code)) {
             return PRESS_START_2P;
+        } else if (ARVO.mFontCode.equals(code)) {
+            return ARVO;
+        } else if (BITTER.mFontCode.equals(code)) {
+            return BITTER;
+        } else if (LATO.mFontCode.equals(code)) {
+            return LATO;
+        } else if (OPEN_SANS.mFontCode.equals(code)) {
+            return OPEN_SANS;
+        } else if (UBUNTU_MONO.mFontCode.equals(code)) {
+            return UBUNTU_MONO;
         } else {
             return DEFAULT;
         }

@@ -29,15 +29,15 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:paddingBottom="5dp"
-        android:paddingTop="5dp"
+        android:paddingBottom="8dp"
+        android:paddingTop="8dp"
         tools:background="@android:color/holo_blue_dark"
         tools:gravity="center"
         wear:layout_box="all">
 
         <net.zhdev.wear.humantime.ShortDateClock
             android:id="@+id/watch_date"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
@@ -55,7 +55,7 @@
             android:paddingRight="10dp"
             android:textSize="30sp"
             tools:gravity="center"
-            tools:text="twenty-fivee\npast\neleven"
+            tools:text="twenty-five\npast\neleven"
             tools:textColor="@android:color/white"
             tools:textStyle="bold"
             wear:sizeToFit="true" />
