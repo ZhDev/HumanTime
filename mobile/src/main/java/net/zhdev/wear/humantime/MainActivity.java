@@ -58,9 +58,13 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 import me.grantland.widget.AutofitTextView;
@@ -338,14 +342,42 @@ public class MainActivity extends WearApiActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             Uri imageUri = data.getData();
+            InputStream inputStream = null;
             switch (requestCode) {
                 case REQUEST_PICK_IMAGE: // An image has been picked, open the cropper
-                    Intent intent = new Intent(this, ImageCropperActivity.class);
-                    intent.setData(imageUri);
-                    startActivityForResult(intent, REQUEST_CROP_IMAGE);
+                    String fileName = Integer.toString(imageUri.toString().hashCode());
+                    File file = new File(getCacheDir(), fileName);
+                    FileOutputStream outputStream = null;
+                    try {
+                        // The image might come from the network or a database and a local file is
+                        // needed to extract the Exif information
+                        inputStream = getContentResolver().openInputStream(imageUri);
+                        outputStream = new FileOutputStream(file);
+                        byte[] buffer = new byte[4096];
+                        int bytes;
+                        while ((bytes = inputStream.read(buffer)) > 0) {
+                            outputStream.write(buffer, 0, bytes);
+                        }
+                        Intent intent = new Intent(this, ImageCropperActivity.class);
+                        intent.putExtra(ImageCropperActivity.EXTRA_CACHED_IMAGE_PATH,
+                                file.getAbsolutePath());
+                        startActivityForResult(intent, REQUEST_CROP_IMAGE);
+                    } catch (IOException e) {
+                        Toast.makeText(this, R.string.error_opening_file, Toast.LENGTH_SHORT)
+                                .show();
+                    } finally {
+                        try {
+                            if (inputStream != null) {
+                                inputStream.close();
+                            }
+                            if (outputStream != null) {
+                                outputStream.close();
+                            }
+                        } catch (IOException e) {
+                        }
+                    }
                     break;
                 case REQUEST_CROP_IMAGE: // The image has been cropped, open the cropper
-                    InputStream inputStream;
                     try {
                         inputStream = getContentResolver().openInputStream(imageUri);
                         Bitmap bitmap = BitmapFactory.decodeStream(inputStream);

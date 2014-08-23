@@ -24,15 +24,18 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.ExifInterface;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.Button;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.InputStream;
+import java.io.IOException;
 
 /**
  * ImageCropperActivity provides a screen to resize and crop an image. The original image will we
@@ -44,6 +47,8 @@ import java.io.InputStream;
  */
 public class ImageCropperActivity extends Activity {
 
+    public static final String EXTRA_CACHED_IMAGE_PATH = "cached_image_name";
+
     /**
      * Default image size for wearables
      */
@@ -53,22 +58,26 @@ public class ImageCropperActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Uri imageUri = getIntent().getData();
-        if (imageUri == null) {
-            throw new IllegalArgumentException("Missing image uri in the intent data");
+        String imagePath = getIntent().getStringExtra(EXTRA_CACHED_IMAGE_PATH);
+        if (imagePath == null) {
+            throw new IllegalArgumentException("Missing image path in the intent extras");
         }
 
         setContentView(R.layout.activity_image_cropper);
 
         final CropImageView imageCropper = (CropImageView) findViewById(R.id.image_cropper);
-        InputStream inputStream = null;
-        try {
-            inputStream = getContentResolver().openInputStream(imageUri);
-        } catch (FileNotFoundException e) {
+        final File imageFile = new File(imagePath);
+        if (!imageFile.exists()) {
             throw new IllegalArgumentException("Invalid file");
         }
-        Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-        imageCropper.setImageBitmap(bitmap);
+        Bitmap bitmap = getScaledBitmapFromFile(imagePath);
+        ExifInterface exifInterface = null;
+        try {
+            exifInterface = new ExifInterface(imagePath);
+        } catch (IOException e) {
+            // If it goes wrong at most we lose the image orientation
+        }
+        imageCropper.setImageBitmap(bitmap, exifInterface);
 
         Button buttonOK = (Button) findViewById(R.id.button_ok);
         // Store the image and pass the resulting Uri back to the calling Activity
@@ -98,6 +107,7 @@ public class ImageCropperActivity extends Activity {
                 } else {
                     setResult(RESULT_CANCELED);
                 }
+                imageFile.delete();
                 finish();
             }
         });
@@ -108,8 +118,44 @@ public class ImageCropperActivity extends Activity {
             @Override
             public void onClick(View v) {
                 setResult(RESULT_CANCELED);
+                imageFile.delete();
                 finish();
             }
         });
+    }
+
+    /**
+     * Loads a scaled bitmap from a file with a factor of reduction in a power of 2 to make it as
+     * close as possible to the display size (minus system decorations).
+     *
+     * @param imagePath the absolute path of the image file to be loaded
+     * @return a scaled bitmap
+     */
+    private Bitmap getScaledBitmapFromFile(String imagePath) {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+
+        BitmapFactory.decodeFile(imagePath, options);
+
+        int bitmapWidth = options.outWidth;
+        int bitmapHeight = options.outHeight;
+
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        int allowedWidth = metrics.widthPixels;
+        int allowedHeight = metrics.heightPixels;
+
+        int sampleSize = 1;
+        if (bitmapWidth > allowedWidth || bitmapHeight > allowedHeight) {
+            bitmapWidth /= 2;
+            bitmapHeight /= 2;
+            while ((bitmapWidth / sampleSize) > allowedWidth
+                    || (bitmapHeight / sampleSize) > allowedHeight) {
+                sampleSize *= 2;
+            }
+        }
+
+        options.inSampleSize = sampleSize;
+        options.inJustDecodeBounds = false;
+        return BitmapFactory.decodeFile(imagePath, options);
     }
 }
