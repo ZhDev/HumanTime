@@ -42,5 +42,6 @@
     <string name="first_cap">Primera</string>
     <string name="date">Fecha</string>
     <string name="sample_date">fecha</string>
+    <string name="error_opening_file">No se pudo abrir el archivo</string>
 
 </resources>
