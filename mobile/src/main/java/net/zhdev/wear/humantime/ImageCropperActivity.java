@@ -28,6 +28,7 @@ import android.media.ExifInterface;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.Button;
 
@@ -69,7 +70,7 @@ public class ImageCropperActivity extends Activity {
         if (!imageFile.exists()) {
             throw new IllegalArgumentException("Invalid file");
         }
-        Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
+        Bitmap bitmap = getScaledBitmapFromFile(imagePath);
         ExifInterface exifInterface = null;
         try {
             exifInterface = new ExifInterface(imagePath);
@@ -121,5 +122,40 @@ public class ImageCropperActivity extends Activity {
                 finish();
             }
         });
+    }
+
+    /**
+     * Loads a scaled bitmap from a file with a factor of reduction in a power of 2 to make it as
+     * close as possible to the display size (minus system decorations).
+     *
+     * @param imagePath the absolute path of the image file to be loaded
+     * @return a scaled bitmap
+     */
+    private Bitmap getScaledBitmapFromFile(String imagePath) {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+
+        BitmapFactory.decodeFile(imagePath, options);
+
+        int bitmapWidth = options.outWidth;
+        int bitmapHeight = options.outHeight;
+
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        int allowedWidth = metrics.widthPixels;
+        int allowedHeight = metrics.heightPixels;
+
+        int sampleSize = 1;
+        if (bitmapWidth > allowedWidth || bitmapHeight > allowedHeight) {
+            bitmapWidth /= 2;
+            bitmapHeight /= 2;
+            while ((bitmapWidth / sampleSize) > allowedWidth
+                    || (bitmapHeight / sampleSize) > allowedHeight) {
+                sampleSize *= 2;
+            }
+        }
+
+        options.inSampleSize = sampleSize;
+        options.inJustDecodeBounds = false;
+        return BitmapFactory.decodeFile(imagePath, options);
     }
 }
