@@ -15,9 +15,7 @@
   -->
 
 <resources>
-
-    <string name="aboutLibraries_description_showIcon" translatable="false">true</string>
-    <string name="aboutLibraries_description_showVersion" translatable="false">true</string>
-    <string name="aboutLibraries_description_text">Human Time has been created with the help of the following open source libraries:</string>
+    
+    <string name="aboutLibraries_description_text">Human Time wurde mit Hilfe der folgenden Open-Source-Bibliotheken erstellt.</string>
 
 </resources>
