@@ -19,7 +19,7 @@ import org.apache.tools.ant.taskdefs.condition.Os
 ext.props = new Properties()
 props.load(new FileInputStream(rootProject.file("release.properties")))
 
-def applySigningConfig(){
+ext.applySigningConfig = {
     android.signingConfigs.release.storeFile file(props.keyStore)
     android.signingConfigs.release.keyAlias props.keyAlias
     android.signingConfigs.release.storePassword fetchPassword('keyStorePassword')
